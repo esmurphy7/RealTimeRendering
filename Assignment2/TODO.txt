@@ -1,0 +1,5 @@
+OpenGL Tutorial - http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
+- Implement Shaders
+	- Use "shaderset.cpp" from examples to load and compile shader files
+	- Vertex shader
+	- Fragment shader

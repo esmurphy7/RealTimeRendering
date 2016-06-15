@@ -51,6 +51,34 @@ extern "C" int main(int argc, char* argv[])
     // Initialize OpenGL (must be called before calling any OpenGL functions)
     OpenGL_Init();
 
+	//======================== VAO ===============================
+	// generate VAO reference
+	GLuint vertexVAO;
+	glGenVertexArrays(1, &vertexVAO);
+
+	// make the VAO active
+	glBindVertexArray(vertexVAO);
+	//============================================================	
+
+	//===================== VBO ==================================
+	// define vertex array
+	static const GLfloat vertices[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+	};
+
+	// Generate VBO reference
+	GLuint vertexbuffer;	
+	glGenBuffers(1, &vertexbuffer);
+
+	// make the VBO active
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+	// upload vertices to buffer
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	//============================================================
+
     // Begin main loop
     while (1)
     {
@@ -64,16 +92,43 @@ extern "C" int main(int argc, char* argv[])
             }
         }
 
+		
         // Set the color to clear with
         glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT);
+
+		//================ SET VAO AND DRAW ===========================
+		// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+		// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		// specify how the attribute is formatted and retrieved
+		glVertexAttribPointer(
+			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+			);
+
+		// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+		glEnableVertexAttribArray(0);
+
+		// Draw the triangle !
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+		// disable the attribute after drawing
+		glDisableVertexAttribArray(0);
+		//============================================================
 
         // SDL docs: "On Mac OS X make sure you bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen."
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         
         // Display the frame of rendering to the window
         SDL_GL_SwapWindow(window);
+		
     }
 
 quit:
