@@ -3,8 +3,17 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opengl.cpp" />
+    <ClCompile Include="shaderset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengl.h" />
+    <ClInclude Include="shaderset.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="a2.vert" />
+    <None Include="a2.frag" />
   </ItemGroup>
 </Project>
