@@ -28,7 +28,7 @@ extern "C" int main(int argc, char* argv[])
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
     // Don't need built-in depth buffer, we use our own.
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 
     // Select OpenGL version
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -76,7 +76,7 @@ extern "C" int main(int argc, char* argv[])
 
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+		glm::vec3(4, 3, -3), // Camera is at (4,3,3), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -217,8 +217,8 @@ extern "C" int main(int argc, char* argv[])
             {
                 goto quit;
             }
-        }
-		
+        }			
+
 		//================== UPDATE SHADERS ==========================
 		// Recompile/relink any programs that changed (must be called)
 		shaders.UpdatePrograms();
@@ -237,13 +237,20 @@ extern "C" int main(int argc, char* argv[])
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*program);
 		//============================================================
-
+		
         // Set the color to clear with
         glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
         // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//================ UPDATE VAO AND DRAW ===========================
+		//===================== Z-BUFFER =============================
+		// Enable depth test
+		glEnable(GL_DEPTH_TEST);
+		// Accept fragment if it closer to the camera than the former one
+		glDepthFunc(GL_LESS);
+		//============================================================
+
+		//================ VAO ATTRIBUTES ===========================
 		// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
 		// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).		
 
@@ -269,7 +276,8 @@ extern "C" int main(int argc, char* argv[])
 			GL_FALSE,           // normalized?
 			0,                  // stride
 			(void*)0            // array buffer offset
-		);
+		);		
+		//============================================================
 
 		// Draw the vertices
 		glDrawArrays(GL_TRIANGLES, 0, numVertices);
@@ -277,7 +285,9 @@ extern "C" int main(int argc, char* argv[])
 		// disable the attribute after drawing
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
-		//============================================================
+
+		// disable the depth buffer
+		glDisable(GL_DEPTH_TEST);
 
         // SDL docs: "On Mac OS X make sure you bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen."
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
