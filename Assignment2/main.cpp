@@ -92,7 +92,7 @@ extern "C" int main(int argc, char* argv[])
 	ShaderSet shaders;
 	shaders.SetVersion("330");
 
-	// set uniforms
+	// set uniforms (use preambles here or define them in the shader file, but NOT both)
 	shaders.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
 	);
@@ -112,11 +112,46 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO ==================================
 	// define vertex array
+	// A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
 	static const GLfloat vertices[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, -1.0f, // triangle 1 : begin
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f, // triangle 1 : end
+		1.0f, 1.0f, -1.0f, // triangle 2 : begin
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f, // triangle 2 : end
+		1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f
 	};
+	int numVertices = 12 * 3;
 
 	// Generate VBO reference
 	GLuint vertexbuffer;	
@@ -166,7 +201,7 @@ extern "C" int main(int argc, char* argv[])
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT);
 
-		//================ SET VAO AND DRAW ===========================
+		//================ UPDATE VAO AND DRAW ===========================
 		// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
 		// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -184,8 +219,8 @@ extern "C" int main(int argc, char* argv[])
 		// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
 		glEnableVertexAttribArray(0);
 
-		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		// Draw the vertices
+		glDrawArrays(GL_TRIANGLES, 0, numVertices);
 
 		// disable the attribute after drawing
 		glDisableVertexAttribArray(0);
