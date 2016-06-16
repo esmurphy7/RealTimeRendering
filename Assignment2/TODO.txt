@@ -15,3 +15,7 @@ Built-in variables - https://www.opengl.org/wiki/Built-in_Variable_(GLSL)
 	Detailed Matrix Explanation - http://www.songho.ca/opengl/gl_transform.html
 - Fragment shader - http://gamedevelopment.tutsplus.com/tutorials/a-beginners-guide-to-coding-graphics-shaders--cms-23313
 		
+=========================================================================
+Main
+- globalize layout numbers
+- Z-buffer
