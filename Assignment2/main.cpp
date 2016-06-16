@@ -1,6 +1,8 @@
 #include <SDL.h>
 
 #include "opengl.h"
+#include "shaderset.h"
+#include <glm\glm.hpp>
 
 #include <stdio.h>
 
@@ -49,7 +51,22 @@ extern "C" int main(int argc, char* argv[])
     }
 
     // Initialize OpenGL (must be called before calling any OpenGL functions)
-    OpenGL_Init();
+    OpenGL_Init();	
+
+	// DEBUG: print OpenGL version
+	const GLubyte* version = glGetString(GL_VERSION);
+	fprintf(stdout, "OpenGL Version: %s\n", version);
+
+	//======================= SHADERS ============================
+	// init shaderset construct
+	ShaderSet shaders;
+	shaders.SetVersion("330");
+
+	// define shader program from vertex and fragment shader files
+	GLuint* program = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });
+
+	
+	//============================================================
 
 	//======================== VAO ===============================
 	// generate VAO reference
@@ -91,8 +108,13 @@ extern "C" int main(int argc, char* argv[])
                 goto quit;
             }
         }
-
 		
+		// Recompile/relink any programs that changed (must be called)
+		shaders.UpdatePrograms();
+
+		// set OpenGL's shader program (must be called in loop)
+		glUseProgram(*program);
+
         // Set the color to clear with
         glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
         // Clear the screen
@@ -127,8 +149,7 @@ extern "C" int main(int argc, char* argv[])
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         
         // Display the frame of rendering to the window
-        SDL_GL_SwapWindow(window);
-		
+        SDL_GL_SwapWindow(window);		
     }
 
 quit:

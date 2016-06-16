@@ -1,5 +1,10 @@
 OpenGL Tutorial - http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
 - Implement Shaders
+	Built-in variables - https://www.opengl.org/wiki/Built-in_Variable_(GLSL)
 	- Use "shaderset.cpp" from examples to load and compile shader files
 	- Vertex shader
-	- Fragment shader
+		Pipeline Summary - http://stackoverflow.com/questions/15588860/what-exactly-are-eye-space-coordinates
+		Matrix & Transformation Explanation - http://www.learnopengles.com/understanding-opengls-matrices/
+		Detailed Matrix Explanation - http://www.songho.ca/opengl/gl_transform.html
+	- Fragment shader - http://gamedevelopment.tutsplus.com/tutorials/a-beginners-guide-to-coding-graphics-shaders--cms-23313
+		
