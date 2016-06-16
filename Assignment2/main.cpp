@@ -1,10 +1,15 @@
+#include <stdio.h>
+
 #include <SDL.h>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtx\transform.hpp>
 
 #include "opengl.h"
 #include "shaderset.h"
-#include <glm\glm.hpp>
 
-#include <stdio.h>
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 480
 
 // SDL wants main() to have this exact signature
 extern "C" int main(int argc, char* argv[])
@@ -35,7 +40,7 @@ extern "C" int main(int argc, char* argv[])
 #endif
 
     // Create the window
-    SDL_Window* window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     if (!window)
     {
         fprintf(stderr, "SDL_CreateWindow: %s\n", SDL_GetError());
@@ -57,15 +62,43 @@ extern "C" int main(int argc, char* argv[])
 	const GLubyte* version = glGetString(GL_VERSION);
 	fprintf(stdout, "OpenGL Version: %s\n", version);
 
+	//=================== MATRICES ==============================
+	// Projection matrix
+	glm::mat4 Projection = glm::perspective(
+		glm::radians(45.0f),						// field of view (degrees)
+		(float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, // aspect ratio
+		0.1f,										// near clip plane
+		100.0f										// far clip plane
+	);
+
+	// Or, for an ortho camera :
+	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+
+	// Camera matrix
+	glm::mat4 View = glm::lookAt(
+		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+		glm::vec3(0, 0, 0), // and looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model = glm::mat4(1.0f);
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	glm::mat4 ModelViewProjection = Projection * View * Model; // Remember, matrix multiplication is the other way around
+	//============================================================
+
 	//======================= SHADERS ============================
 	// init shaderset construct
 	ShaderSet shaders;
 	shaders.SetVersion("330");
 
-	// define shader program from vertex and fragment shader files
-	GLuint* program = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });
+	// set uniforms
+	shaders.SetPreamble(
+		"uniform mat4 iModelViewProjection;\n"
+	);
 
-	
+	// define shader program from vertex and fragment shader files
+	GLuint* program = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });	
 	//============================================================
 
 	//======================== VAO ===============================
@@ -109,11 +142,24 @@ extern "C" int main(int argc, char* argv[])
             }
         }
 		
+		//================== UPDATE SHADERS ==========================
 		// Recompile/relink any programs that changed (must be called)
 		shaders.UpdatePrograms();
 
+		// Get a handle for our "iModelViewProjection" uniform
+		// Only during the initialisation
+		GLuint iModelViewProjectionLoc = glGetUniformLocation(*program, "iModelViewProjection");
+
+		// Send our transformation to the currently bound shader, in the "iModelViewProjection" uniform
+		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+		if (iModelViewProjectionLoc != -1)
+		{
+			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
+		}
+
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*program);
+		//============================================================
 
         // Set the color to clear with
         glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
