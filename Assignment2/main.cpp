@@ -13,114 +13,6 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-glm::mat4 ViewMatrix;
-glm::mat4 ProjectionMatrix;
-
-glm::mat4 getViewMatrix() {
-	return ViewMatrix;
-}
-glm::mat4 getProjectionMatrix() {
-	return ProjectionMatrix;
-}
-
-
-// Initial position : on +Z
-glm::vec3 position = glm::vec3(0, 0, 5);
-// Initial horizontal angle : toward -Z
-float horizontalAngle = 3.14f;
-// Initial vertical angle : none
-float verticalAngle = 0.0f;
-// Initial Field of View
-float initialFoV = 45.0f;
-
-float speed = 30.0f;
-float mouseSpeed = 0.005f;
-float mouseWheelPos = 0;
-
-void computeMatricesFromInputs(SDL_Window *window, float deltaTime) 
-{
-	// Get mouse position
-	int xpos, ypos;
-	SDL_GetMouseState(&xpos, &ypos);
-	float mouseX = float(xpos);
-	float mouseY = float(ypos);		
-
-	// Compute new orientation
-	float dW = float(WINDOW_WIDTH / 2 - mouseX);
-	float dH = float(WINDOW_HEIGHT / 2 - mouseY);
-	horizontalAngle += mouseSpeed * dW;
-	verticalAngle += mouseSpeed * dH;
-
-	//fprintf(stdout, "horizontalAngle, verticalAngle: %f, %f\n", horizontalAngle, verticalAngle);
-	//fprintf(stdout, "dW, dH: %f, %f\n", dW, dH);
-
-	// Direction : Spherical coordinates to Cartesian coordinates conversion
-	glm::vec3 direction(
-		cos(verticalAngle) * sin(horizontalAngle),
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle)
-	);
-
-	// Right vector
-	glm::vec3 right = glm::vec3(
-		sin(horizontalAngle - 3.14f / 2.0f),
-		0,
-		cos(horizontalAngle - 3.14f / 2.0f)
-	);
-
-	// Up vector
-	glm::vec3 up = glm::cross(right, direction);
-
-	SDL_Event ev;
-	while (SDL_PollEvent(&ev))
-	{
-		if (ev.type == SDL_QUIT)
-		{
-			break;
-		}
-
-		if (ev.type == SDL_KEYDOWN)
-		{
-			if (ev.key.keysym.sym == SDLK_RIGHT)
-			{
-				position += right * deltaTime * speed;
-			}
-			if (ev.key.keysym.sym == SDLK_LEFT)
-			{
-				position -= right * deltaTime * speed;
-			}
-			if (ev.key.keysym.sym == SDLK_UP)
-			{
-				position += direction * deltaTime * speed;
-			}
-			if (ev.key.keysym.sym == SDLK_DOWN)
-			{
-				position -= direction * deltaTime * speed;
-			}
-		}
-
-		if (ev.type == SDL_MOUSEWHEEL)
-		{
-			mouseWheelPos = ev.wheel.y;
-		}
-	}
-
-	float FoV = initialFoV - 5 * mouseWheelPos; // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
-
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	ProjectionMatrix = glm::perspective(FoV, float(WINDOW_WIDTH)/float(WINDOW_HEIGHT), 0.1f, 100.0f);
-	// Camera matrix
-	ViewMatrix = glm::lookAt(
-		position,           // Camera is here
-		position + direction, // and looks here : at the same position, plus "direction"
-		up                  // Head is up (set to 0,-1,0 to look upside-down)
-	);
-
-	// reset mouse position to center of screen
-	SDL_WarpMouseInWindow(window, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-}
-
-
 // SDL wants main() to have this exact signature
 extern "C" int main(int argc, char* argv[])
 {
@@ -300,22 +192,12 @@ extern "C" int main(int argc, char* argv[])
 		//================= UPDATE USER INPUT ========================
 		double currentTime = SDL_GetTicks() / 1000.0;		
 		float deltaTime = float(currentTime - lastTime);
-		/*
-		inputHandler.updateInput(deltaTime);
-		camera.FoV			= inputHandler.FoV;
-		camera.aspectRatio	= inputHandler.aspectRatio;
-		camera.position		= inputHandler.position;
-		camera.position		= inputHandler.direction;
-		camera.right		= inputHandler.right;
-		camera.up			= inputHandler.up;
-		*/
-
-		// Compute the MVP matrix from keyboard and mouse input
-		computeMatricesFromInputs(window, deltaTime);
-		glm::mat4 ProjectionMatrix = getProjectionMatrix();
-		glm::mat4 ViewMatrix = getViewMatrix();
-		glm::mat4 ModelMatrix = glm::mat4(1.0);
-		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+		
+		if (inputHandler.updateInput(deltaTime) == -1)
+		{
+			goto quit;
+		}
+		camera.update(inputHandler.getInputData(), deltaTime);	
 
 		lastTime = currentTime;
 		//============================================================
@@ -342,8 +224,8 @@ extern "C" int main(int argc, char* argv[])
 		// Model matrix : an identity matrix (model will be at the origin)
 		glm::mat4 Model = glm::mat4(1.0f);
 		// Our ModelViewProjection : multiplication of our 3 matrices
-		//glm::mat4 ModelViewProjection = Projection * View * Model; // Remember, matrix multiplication is the other way around
-		glm::mat4 ModelViewProjection = MVP;
+		glm::mat4 ModelViewProjection = Projection * View * Model; // Remember, matrix multiplication is the other way around
+		//glm::mat4 ModelViewProjection = MVP;
 		//============================================================
 
 		//================== UPDATE SHADERS ==========================

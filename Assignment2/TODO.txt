@@ -20,18 +20,27 @@ Main
 x Z-buffer
 	x use OpenGL's default depth buffer test
 
-- write class to abstract out input handling and camera attribute computing
+x write class to abstract out input handling and camera attribute computing
+	x set keySpeed constant in InputHandler
+	x set mouseSpeed constant in InputHandler		
+	x store change in arrow key values in inputData struct for camera class to use to compute position vector
+	x rename InputHandler.updateInput()
+	x remove tutorial's copied and pasted code
+	x make InputHandler stateful
+		x inputData member attribute
+		x getInputData() getter function
+		x store change in mouse wheel instead of instance of mouse wheel
 
-- play with and understand mouse and keyspeed
+x play with and understand mouse and keyspeed
 
-- copmute horizontal and vertical angles properly
+x compute horizontal and vertical angles properly
 	x reset mouse position to center of screen after each main loop
-	- mouse position should only affect angles when mouse button is held down
 
-- properly handling SDL window closing
-	- return exit status from whichever function handles input and call SDL_Exit() from main using this status
+x properly handling SDL window closing
+	x return exit status from whichever function handles input and call SDL_Exit() from main using this status
 
-- accept mouse wheel input to adjust FoV
-	- reverse direction
-	- adjust magnitude of change
-		- mousewheel only has +1.0 and -1.0 position - how to have more "continuous" range?
+x accept mouse wheel input to adjust FoV
+	x adjust magnitude of change
+		x mousewheel only has +1.0 and -1.0 position - how to have more "continuous" range?
+			x accumulate mousewheel changes
+				x set wheel bounds
