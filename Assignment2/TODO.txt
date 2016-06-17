@@ -17,6 +17,21 @@ Built-in variables - https://www.opengl.org/wiki/Built-in_Variable_(GLSL)
 		
 =========================================================================
 Main
-- globalize layout numbers
 x Z-buffer
 	x use OpenGL's default depth buffer test
+
+- write class to abstract out input handling and camera attribute computing
+
+- play with and understand mouse and keyspeed
+
+- copmute horizontal and vertical angles properly
+	x reset mouse position to center of screen after each main loop
+	- mouse position should only affect angles when mouse button is held down
+
+- properly handling SDL window closing
+	- return exit status from whichever function handles input and call SDL_Exit() from main using this status
+
+- accept mouse wheel input to adjust FoV
+	- reverse direction
+	- adjust magnitude of change
+		- mousewheel only has +1.0 and -1.0 position - how to have more "continuous" range?
