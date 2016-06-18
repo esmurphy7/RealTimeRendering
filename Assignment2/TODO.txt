@@ -47,25 +47,56 @@ x accept mouse wheel input to adjust FoV
 
 - apply texture to .obj cube
 	 - load "models\cube\default.png" as texture image
-	 - generate textureId
-	 - bind texture 
-	 - pass texture to OpenGL
-	 - set filtering strategy
+		- dynamically specify texture file names based on given shape, its material ids
+		- load texture file names using paths relative to project root
+	 x generate textureId
+	 x bind texture 
+	 x pass texture to OpenGL
+	 x set filtering strategy
+	 x activate and pass texture channel to shader
 
-- load and render .obj files using tinyloader
+x load and render .obj files using tinyloader
 	x include and setup tiny_obj_loader
 	x initialize, bind and fill vertex, UVcoords, and normals VBOs
 	x initialize, bind and fill indices EBO
 	x initialize mesh VAO
 	x attach vertex, UVcoords, and normal VBOs to mesh VAO
+	x update vertex shader
+		x accept and relay UV coords to fragment shader
+		x double check that reference numbers of VAO attributes match layout numbers in shader
+	x update fragment shader
+		x accept UV coord as input
+		x reference corresponding texture via uniform
+			x init uniform in main setup
+			x pass uniform to shader in main loop
+		x output corresponding color with texture reference and UV coord
+
+- implement phong shading
+	- setup single point light source
+		- pass a point vector as a uniform to the shader ("LightPosition_worldspace")
 	- update vertex shader
-		- accept and relay UV coords to fragment shader
-		- double check that reference numbers of VAO attributes match layout numbers in shader
+		- inputs:
+			- view matrix
+			- model matrix
+			- Lightposition_worldspace
+		- outputs:
+			- Position_worldspace
+			- Normal_cameraspace
+			- EyeDirection_cameraspace
+			- LightDirection_cameraspace
+			
 	- update fragment shader
-		- accept UV coord as input
-		- reference corresponding texture via uniform
-			- init uniform in main setup
-			- pass uniform to shader in main loop
-		- output corresponding color with texture reference and UV coord
+		- inputs:
+			- Position_worldspace
+			- Normal_cameraspace
+			- EyeDirection_cameraspace
+			- LightDirection_cameraspace
+		- uniforms:
+			- MV matrix
+			- LightPosition_worldspace
+
+- load multiple .obj files
+	- initialize, bind, and fill VBOs, EBO for each .obj
+	- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
 
 - clean up VBOs, VAOs, programs, textures etc. (see end of "tutorial07.cpp" for deletion functions)

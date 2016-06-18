@@ -5,6 +5,9 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtx\transform.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION 
+#include <stb_image.h>
+
 #include "opengl.h"
 #include "shaderset.h"
 #include "tiny_obj_loader.h"
@@ -73,7 +76,7 @@ extern "C" int main(int argc, char* argv[])
 	// set uniforms (use preambles here or define them in the shader file, but NOT both)
 	shaders.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
-		"uniform int iTextureSampler;\n"
+		"uniform sampler2D iTextureSampler;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -90,10 +93,12 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO/EBO ===============================
 	// Load the mesh and its materials
+	std::string meshObj = "models/cube/cube.obj";
+	std::string objBase = "models/cube/";
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
-	if (!tinyobj::LoadObj(shapes, materials, err, "models/cube/cube.obj", "models/cube/"))
+	if (!tinyobj::LoadObj(shapes, materials, err, meshObj.c_str(), objBase.c_str()))
 	{
 		fprintf(stderr, "Failed to load cube.obj: %s\n", err.c_str());
 		return 1;
@@ -139,6 +144,50 @@ extern "C" int main(int argc, char* argv[])
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[0].mesh.indices.size() * sizeof(unsigned int), shapes[0].mesh.indices.data(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}	  
+	//============================================================
+
+	//===================== TEXTURES =============================
+	// get name of texture image from loaded obj
+	int materialId = shapes[0].mesh.material_ids[0];
+	//std::string textureImage = materials[materialId].diffuse_texname;
+	std::string textureImage = "\models\\cube\\default.png";
+
+	// load the texture image
+	int imgWidth;
+	int imgHeight;
+	int nColorDepth;
+	unsigned char* pixels = stbi_load(textureImage.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
+
+	if (pixels == NULL)
+	{
+		fprintf(stderr, "Failed to load %s\n", textureImage.c_str());
+		return 0;
+	}
+
+	// generate and bind texture object
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	
+
+	// upload texture data to OpenGL
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA8,
+		imgWidth,
+		imgHeight,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		pixels);
+
+	// set filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_2D, 0);	
 	//============================================================
 
     // Begin main loop
@@ -201,10 +250,13 @@ extern "C" int main(int argc, char* argv[])
 			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
 		}
 
-		int textureId = 0;
+		// activate texture channel 0 and pass it to shader
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
 		if (iTextureSamplerLoc != -1)
 		{
-			glUniform1i(iTextureSamplerLoc, textureId);
+			glUniform1i(iTextureSamplerLoc, 0);
 		}
 
 		// set OpenGL's shader program (must be called in loop)
@@ -224,35 +276,6 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================
 
 		//================ VAO ATTRIBUTES ===========================
-		/*
-		// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-		// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).		
-
-		// 1st attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);		
-
-		// 2nd attribute buffer : colors
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-		glVertexAttribPointer(
-			1,                  // attribute. No particular reason for 1, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);	
-		*/
-
 		// Attach position buffer as attribute 0
 		if (positionVBO != 0)
 		{
