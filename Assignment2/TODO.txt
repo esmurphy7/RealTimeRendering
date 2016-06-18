@@ -95,8 +95,14 @@ x load and render .obj files using tinyloader
 			- MV matrix
 			- LightPosition_worldspace
 
-- load multiple .obj files
-	- initialize, bind, and fill VBOs, EBO for each .obj
+- abstract out mesh model functionality to model class
+- initialize, bind, and fill VBOs, EBO for each .obj
 	- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
+
+- abstract out texture functionality to texture class
+	- image file loading
+	- OpenGL texture reference
+	- OpenGL pixel data uploading
+	- filtering parameters
 
 - clean up VBOs, VAOs, programs, textures etc. (see end of "tutorial07.cpp" for deletion functions)
