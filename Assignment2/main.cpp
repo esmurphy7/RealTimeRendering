@@ -152,18 +152,18 @@ extern "C" int main(int argc, char* argv[])
 	//===================== TEXTURES =============================
 	// get name of texture image from loaded obj
 	int materialId = shapes[0].mesh.material_ids[0];
-	//std::string textureImage = materials[materialId].diffuse_texname;
-	std::string textureImage = "\models\\cube\\default.png";
+	std::string textureFilename = materials[materialId].diffuse_texname;
+	std::string texturePath = objBase + textureFilename;
 
 	// load the texture image
 	int imgWidth;
 	int imgHeight;
 	int nColorDepth;
-	unsigned char* pixels = stbi_load(textureImage.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
+	unsigned char* pixels = stbi_load(texturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
 
 	if (pixels == NULL)
 	{
-		fprintf(stderr, "Failed to load %s\n", textureImage.c_str());
+		fprintf(stderr, "Failed to load %s\n", texturePath.c_str());
 		return 0;
 	}
 

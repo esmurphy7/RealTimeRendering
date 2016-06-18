@@ -45,10 +45,11 @@ x accept mouse wheel input to adjust FoV
 			x accumulate mousewheel changes
 				x set wheel bounds
 
-- apply texture to .obj cube
-	 - load "models\cube\default.png" as texture image
-		- dynamically specify texture file names based on given shape, its material ids
-		- load texture file names using paths relative to project root
+x apply texture to .obj cube
+	 x load "models\cube\default.png" as texture image
+		x dynamically specify texture file names based on given shape, its material ids			
+		x load texture file names using paths relative to project root
+			x concatenate base obj path and texture image filename
 	 x generate textureId
 	 x bind texture 
 	 x pass texture to OpenGL
