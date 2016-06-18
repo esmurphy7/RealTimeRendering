@@ -7,6 +7,7 @@
 
 #include "opengl.h"
 #include "shaderset.h"
+#include "tiny_obj_loader.h"
 #include "InputHandler.h"
 #include "Camera.h"
 
@@ -72,115 +73,72 @@ extern "C" int main(int argc, char* argv[])
 	// set uniforms (use preambles here or define them in the shader file, but NOT both)
 	shaders.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
+		"uniform int iTextureSampler;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
-	GLuint* program = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });	
+	GLuint* shaderId = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });	
 	//============================================================
 
 	//======================== VAO ===============================
-	// generate VAO reference
-	GLuint vertexVAO;
-	glGenVertexArrays(1, &vertexVAO);
-
-	// make the VAO active
-	glBindVertexArray(vertexVAO);
+	// Hook up the vertex and index buffers to a "vertex array object" (VAO)
+	// VAOs are the closest thing OpenGL has to a "mesh" object.
+	// VAOs are used to feed data from buffers to thgle inputs of a vertex shader.
+	GLuint meshVAO;
+	glGenVertexArrays(1, &meshVAO);
 	//============================================================	
 
-	//===================== VBO ==================================
-	// define vertex array
-	// A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
-	static const GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f, // triangle 1 : begin
-		-1.0f, -1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f, // triangle 1 : end
-		1.0f, 1.0f, -1.0f, // triangle 2 : begin
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f, // triangle 2 : end
-		1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
-		1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f
-	};
-	int numVertices = 12 * 3;
+	//===================== VBO/EBO ===============================
+	// Load the mesh and its materials
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string err;
+	if (!tinyobj::LoadObj(shapes, materials, err, "models/cube/cube.obj", "models/cube/"))
+	{
+		fprintf(stderr, "Failed to load cube.obj: %s\n", err.c_str());
+		return 1;
+	}
 
-	// One color for each vertex. They were generated randomly.
-	static const GLfloat colors[] = {
-		0.583f, 0.771f, 0.014f,
-		0.609f, 0.115f, 0.436f,
-		0.327f, 0.483f, 0.844f,
-		0.822f, 0.569f, 0.201f,
-		0.435f, 0.602f, 0.223f,
-		0.310f, 0.747f, 0.185f,
-		0.597f, 0.770f, 0.761f,
-		0.559f, 0.436f, 0.730f,
-		0.359f, 0.583f, 0.152f,
-		0.483f, 0.596f, 0.789f,
-		0.559f, 0.861f, 0.639f,
-		0.195f, 0.548f, 0.859f,
-		0.014f, 0.184f, 0.576f,
-		0.771f, 0.328f, 0.970f,
-		0.406f, 0.615f, 0.116f,
-		0.676f, 0.977f, 0.133f,
-		0.971f, 0.572f, 0.833f,
-		0.140f, 0.616f, 0.489f,
-		0.997f, 0.513f, 0.064f,
-		0.945f, 0.719f, 0.592f,
-		0.543f, 0.021f, 0.978f,
-		0.279f, 0.317f, 0.505f,
-		0.167f, 0.620f, 0.077f,
-		0.347f, 0.857f, 0.137f,
-		0.055f, 0.953f, 0.042f,
-		0.714f, 0.505f, 0.345f,
-		0.783f, 0.290f, 0.734f,
-		0.722f, 0.645f, 0.174f,
-		0.302f, 0.455f, 0.848f,
-		0.225f, 0.587f, 0.040f,
-		0.517f, 0.713f, 0.338f,
-		0.053f, 0.959f, 0.120f,
-		0.393f, 0.621f, 0.362f,
-		0.673f, 0.211f, 0.457f,
-		0.820f, 0.883f, 0.371f,
-		0.982f, 0.099f, 0.879f
-	};
+	GLuint positionVBO = 0;
+	GLuint texcoordVBO = 0;
+	GLuint normalVBO = 0;
+	GLuint indicesEBO = 0;
 
-	// Generate vertex VBO reference
-	GLuint vertexbuffer;	
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// Upload per-vertex positions
+	if (!shapes[0].mesh.positions.empty())
+	{
+		glGenBuffers(1, &positionVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.positions.size() * sizeof(float), shapes[0].mesh.positions.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
-	// generate color VBO reference
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+	// Upload per-vertex texture coordinates
+	if (!shapes[0].mesh.texcoords.empty())
+	{
+		glGenBuffers(1, &texcoordVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.texcoords.size() * sizeof(float), shapes[0].mesh.texcoords.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	// Upload per-vertex normals
+	if (!shapes[0].mesh.normals.empty())
+	{
+		glGenBuffers(1, &normalVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.normals.size() * sizeof(float), shapes[0].mesh.normals.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	// Upload the indices that form triangles
+	if (!shapes[0].mesh.indices.empty())
+	{
+		glGenBuffers(1, &indicesEBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[0].mesh.indices.size() * sizeof(unsigned int), shapes[0].mesh.indices.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}	  
 	//============================================================
 
     // Begin main loop
@@ -197,7 +155,7 @@ extern "C" int main(int argc, char* argv[])
 		{
 			goto quit;
 		}
-		camera.update(inputHandler.getInputData(), deltaTime);	
+		camera.update(inputHandler.getInputData(), deltaTime);
 
 		lastTime = currentTime;
 		//============================================================
@@ -232,9 +190,9 @@ extern "C" int main(int argc, char* argv[])
 		// Recompile/relink any programs that changed (must be called)
 		shaders.UpdatePrograms();
 
-		// Get a handle for our "iModelViewProjection" uniform
-		// Only during the initialisation
-		GLuint iModelViewProjectionLoc = glGetUniformLocation(*program, "iModelViewProjection");
+		// get uniform handles
+		GLuint iModelViewProjectionLoc = glGetUniformLocation(*shaderId, "iModelViewProjection");
+		GLuint iTextureSamplerLoc = glGetUniformLocation(*shaderId, "iTextureSampler");
 
 		// Send our transformation to the currently bound shader, in the "iModelViewProjection" uniform
 		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
@@ -243,8 +201,14 @@ extern "C" int main(int argc, char* argv[])
 			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
 		}
 
+		int textureId = 0;
+		if (iTextureSamplerLoc != -1)
+		{
+			glUniform1i(iTextureSamplerLoc, textureId);
+		}
+
 		// set OpenGL's shader program (must be called in loop)
-		glUseProgram(*program);
+		glUseProgram(*shaderId);
 		//============================================================
 		
         // Set the color to clear with
@@ -260,6 +224,7 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================
 
 		//================ VAO ATTRIBUTES ===========================
+		/*
 		// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
 		// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).		
 
@@ -285,11 +250,84 @@ extern "C" int main(int argc, char* argv[])
 			GL_FALSE,           // normalized?
 			0,                  // stride
 			(void*)0            // array buffer offset
-		);		
+		);	
+		*/
+
+		// Attach position buffer as attribute 0
+		if (positionVBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+
+			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+			glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+			glEnableVertexAttribArray(0);
+
+			glBindVertexArray(0);
+		}
+
+		// Attach texcoord buffer as attribute 1
+		if (texcoordVBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+
+			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+			glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+			glEnableVertexAttribArray(1);
+
+			glBindVertexArray(0);
+		}
+
+		// Attach normal buffer as attribute 2
+		if (normalVBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+
+			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+			glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+			glEnableVertexAttribArray(2);
+
+			glBindVertexArray(0);
+		}
+
+		// attach the index EBO to the mesh VAO
+		if (indicesEBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+
+			// Note: Calling glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); when a VAO is bound attaches the index buffer to the VAO.
+			// From an API design perspective, this is subtle.
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+
+			glBindVertexArray(0);
+		}
+
+		// Can now bind the vertex array object to the graphics pipeline, to render with it.
+		// For example:
+		glBindVertexArray(meshVAO);
 		//============================================================
 
 		// Draw the vertices
-		glDrawArrays(GL_TRIANGLES, 0, numVertices);
+		glDrawElements(
+			GL_TRIANGLES,      // mode
+			shapes[0].mesh.indices.size(),    // count
+			GL_UNSIGNED_INT,   // type
+			(void*)0           // element array buffer offset
+		);
 
 		// disable the attribute after drawing
 		glDisableVertexAttribArray(0);

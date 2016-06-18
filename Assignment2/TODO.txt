@@ -44,3 +44,28 @@ x accept mouse wheel input to adjust FoV
 		x mousewheel only has +1.0 and -1.0 position - how to have more "continuous" range?
 			x accumulate mousewheel changes
 				x set wheel bounds
+
+- apply texture to .obj cube
+	 - load "models\cube\default.png" as texture image
+	 - generate textureId
+	 - bind texture 
+	 - pass texture to OpenGL
+	 - set filtering strategy
+
+- load and render .obj files using tinyloader
+	x include and setup tiny_obj_loader
+	x initialize, bind and fill vertex, UVcoords, and normals VBOs
+	x initialize, bind and fill indices EBO
+	x initialize mesh VAO
+	x attach vertex, UVcoords, and normal VBOs to mesh VAO
+	- update vertex shader
+		- accept and relay UV coords to fragment shader
+		- double check that reference numbers of VAO attributes match layout numbers in shader
+	- update fragment shader
+		- accept UV coord as input
+		- reference corresponding texture via uniform
+			- init uniform in main setup
+			- pass uniform to shader in main loop
+		- output corresponding color with texture reference and UV coord
+
+- clean up VBOs, VAOs, programs, textures etc. (see end of "tutorial07.cpp" for deletion functions)

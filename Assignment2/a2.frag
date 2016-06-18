@@ -1,7 +1,11 @@
-in vec3 fragmentColor;
-out vec3 color;
+// Interpolated values from the vertex shaders
+in vec2 UV;
 
+// Ouput data
+out vec3 color;
+	
 void main()
 {
-  color = fragmentColor;
+	// Output color = color of the texture at the specified UV
+	color = texture( iTextureSampler, UV ).rgb;
 }
