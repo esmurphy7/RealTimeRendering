@@ -71,33 +71,33 @@ x load and render .obj files using tinyloader
 			x pass uniform to shader in main loop
 		x output corresponding color with texture reference and UV coord
 
-- implement phong shading
-	- setup single point light source
-		- pass a point vector as a uniform to the shader ("LightPosition_worldspace")
-	- update vertex shader
-		- inputs:
-			- view matrix
-			- model matrix
-			- Lightposition_worldspace
-		- outputs:
-			- Position_worldspace
-			- Normal_cameraspace
-			- EyeDirection_cameraspace
-			- LightDirection_cameraspace
+x implement phong shading
+	x setup single point light source
+		x pass a point vector as a uniform to the shader ("iLightPosition_worldspace")
+	x update vertex shader
+		x uniforms:
+			x view matrix
+			x model matrix
+			x iLightposition_worldspace
+		x outputs:
+			x Position_worldspace
+			x Normal_cameraspace
+			x EyeDirection_cameraspace
+			x LightDirection_cameraspace
 			
-	- update fragment shader
-		- inputs:
-			- Position_worldspace
-			- Normal_cameraspace
-			- EyeDirection_cameraspace
-			- LightDirection_cameraspace
-		- uniforms:
-			- MV matrix
-			- LightPosition_worldspace
+	x update fragment shader
+		x inputs:
+			x Position_worldspace
+			x Normal_cameraspace
+			x EyeDirection_cameraspace
+			x LightDirection_cameraspace
+		x uniforms:
+			x MV matrix
+			x LightPosition_worldspace
 
 - abstract out mesh model functionality to model class
-- initialize, bind, and fill VBOs, EBO for each .obj
-	- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
+	- initialize, bind, and fill VBOs, EBO for each .obj
+		- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
 
 - abstract out texture functionality to texture class
 	- image file loading

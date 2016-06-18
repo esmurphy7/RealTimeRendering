@@ -76,7 +76,10 @@ extern "C" int main(int argc, char* argv[])
 	// set uniforms (use preambles here or define them in the shader file, but NOT both)
 	shaders.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
+		"uniform mat4 iModel;\n"
+		"uniform mat4 iView;\n"
 		"uniform sampler2D iTextureSampler;\n"
+		"uniform vec3 iLightPosition_worldspace;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -190,6 +193,10 @@ extern "C" int main(int argc, char* argv[])
 	glBindTexture(GL_TEXTURE_2D, 0);	
 	//============================================================
 
+	//======================== LIGHTS ============================
+	glm::vec3 light = glm::vec3(4, 4, 4);
+	//============================================================
+
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
@@ -241,22 +248,37 @@ extern "C" int main(int argc, char* argv[])
 
 		// get uniform handles
 		GLuint iModelViewProjectionLoc = glGetUniformLocation(*shaderId, "iModelViewProjection");
+		GLuint iModelLoc = glGetUniformLocation(*shaderId, "iModel");
+		GLuint iViewLoc = glGetUniformLocation(*shaderId, "iView");
 		GLuint iTextureSamplerLoc = glGetUniformLocation(*shaderId, "iTextureSampler");
+		GLuint iLightPosition_worldspaceLoc = glGetUniformLocation(*shaderId, "iLightPosition_worldspace");
 
-		// Send our transformation to the currently bound shader, in the "iModelViewProjection" uniform
-		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+		// send matrix uniforms to shader
 		if (iModelViewProjectionLoc != -1)
 		{
 			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
+		}
+		if (iModelLoc != -1)
+		{
+			glUniformMatrix4fv(iModelLoc, 1, GL_FALSE, &Model[0][0]);
+		}
+		if (iViewLoc != -1)
+		{
+			glUniformMatrix4fv(iViewLoc, 1, GL_FALSE, &View[0][0]);
 		}
 
 		// activate texture channel 0 and pass it to shader
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
-
 		if (iTextureSamplerLoc != -1)
 		{
 			glUniform1i(iTextureSamplerLoc, 0);
+		}
+
+		// pass light position uniform to shader
+		if (iLightPosition_worldspaceLoc != -1) 
+		{
+			glUniform3f(iLightPosition_worldspaceLoc, light.x, light.y, light.z);
 		}
 
 		// set OpenGL's shader program (must be called in loop)
