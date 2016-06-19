@@ -97,10 +97,16 @@ x implement phong shading
 			x LightPosition_worldspace
 
 - abstract out mesh model functionality to model class
+	- how to dynamically create distinct VBO/EBO references that can be used in the main loop later on to attach attributes?
+		- create MeshModel class that stores corresponding shape and VBO/EBO reference
 	- initialize, bind, and fill VBOs, EBO for each .obj
-		- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
+	- attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
 
 - abstract out texture functionality to texture class
+	- dynamically load textures for each material_id in each mesh
+		- how to dynamically create distinct texture references that can be used in the main loop later on to pass as uniforms?
+			- create Texture class that stores corresponding material and texture reference
+		- properly load diffuse, ambient, specular, etc. textures
 	- image file loading
 	- OpenGL texture reference
 	- OpenGL pixel data uploading

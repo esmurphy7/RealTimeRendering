@@ -98,54 +98,106 @@ extern "C" int main(int argc, char* argv[])
 	// Load the mesh and its materials
 	std::string meshObj = "models/cube/cube.obj";
 	std::string objBase = "models/cube/";
+	//std::string meshObj = "models/tinyobjloader/test-nan.obj";
+	//std::string objBase = "models/tinyobjloader/";
+	//std::string meshObj = "models/wedge/wedge.obj";
+	//std::string objBase = "models/wedge/";
+	//std::string meshObj = "models/test/multiple-test.obj";
+	//std::string objBase = "models/test/";
+
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
+
 	if (!tinyobj::LoadObj(shapes, materials, err, meshObj.c_str(), objBase.c_str()))
 	{
 		fprintf(stderr, "Failed to load cube.obj: %s\n", err.c_str());
 		return 1;
+	}	
+
+	// find the total sizes of all shapes' data
+	size_t vertex_buffer_size = 0;
+	size_t texCoords_buffer_size = 0;
+	size_t normals_buffer_size = 0;
+	size_t indices_buffer_size = 0;
+	for each (tinyobj::shape_t shape in shapes) 
+	{
+		vertex_buffer_size += sizeof(float)* shape.mesh.positions.size();
+		texCoords_buffer_size += sizeof(float)* shape.mesh.texcoords.size();
+		normals_buffer_size += sizeof(float)* shape.mesh.normals.size();
+		indices_buffer_size += sizeof(float)* shape.mesh.indices.size();
 	}
 
+	// initialize vertex VBO
 	GLuint positionVBO = 0;
+	glGenBuffers(1, &positionVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+	glBufferData(GL_ARRAY_BUFFER, vertex_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// initialize UVcoords VBO
 	GLuint texcoordVBO = 0;
+	glGenBuffers(1, &texcoordVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+	glBufferData(GL_ARRAY_BUFFER, texCoords_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// initialize normals VBO
 	GLuint normalVBO = 0;
+	glGenBuffers(1, &normalVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+	glBufferData(GL_ARRAY_BUFFER, normals_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// initialize indices EBO
 	GLuint indicesEBO = 0;
+	glGenBuffers(1, &indicesEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// Upload per-vertex positions
-	if (!shapes[0].mesh.positions.empty())
+	// upload VBO and EBO data for each shape loaded
+	size_t vertex_buffer_offset = 0;
+	size_t texCoords_buffer_offset = 0;
+	size_t normals_buffer_offset = 0;
+	size_t indices_buffer_offset = 0;
+	for each (tinyobj::shape_t shape in shapes)
 	{
-		glGenBuffers(1, &positionVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
-		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.positions.size() * sizeof(float), shapes[0].mesh.positions.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+		// Upload per-vertex positions
+		if (!shape.mesh.positions.empty())
+		{				
+			glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, vertex_buffer_offset, sizeof(float)* shape.mesh.positions.size(), &shape.mesh.positions[0]);
+			vertex_buffer_offset += sizeof(float)* shape.mesh.positions.size();
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
 
-	// Upload per-vertex texture coordinates
-	if (!shapes[0].mesh.texcoords.empty())
-	{
-		glGenBuffers(1, &texcoordVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
-		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.texcoords.size() * sizeof(float), shapes[0].mesh.texcoords.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+		// Upload per-vertex texture coordinates
+		if (!shape.mesh.texcoords.empty())
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, texCoords_buffer_offset, sizeof(float) * shape.mesh.texcoords.size(), &shape.mesh.texcoords[0]);
+			texCoords_buffer_offset += sizeof(float) * shape.mesh.texcoords.size();
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
 
-	// Upload per-vertex normals
-	if (!shapes[0].mesh.normals.empty())
-	{
-		glGenBuffers(1, &normalVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.normals.size() * sizeof(float), shapes[0].mesh.normals.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+		// Upload per-vertex normals
+		if (!shape.mesh.normals.empty())
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, normals_buffer_offset, sizeof(float) * shape.mesh.normals.size(), &shape.mesh.normals[0]);
+			normals_buffer_offset += sizeof(float) * shape.mesh.normals.size();
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
 
-	// Upload the indices that form triangles
-	if (!shapes[0].mesh.indices.empty())
-	{
-		glGenBuffers(1, &indicesEBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[0].mesh.indices.size() * sizeof(unsigned int), shapes[0].mesh.indices.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		// Upload the indices that form triangles
+		if (!shape.mesh.indices.empty())
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indices_buffer_offset, sizeof(unsigned int) * shape.mesh.indices.size(), &shape.mesh.indices[0]);
+			indices_buffer_offset += sizeof(unsigned int) * shape.mesh.indices.size();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		}
 	}	  
 	//============================================================
 
@@ -163,8 +215,7 @@ extern "C" int main(int argc, char* argv[])
 
 	if (pixels == NULL)
 	{
-		fprintf(stderr, "Failed to load %s\n", texturePath.c_str());
-		return 0;
+		fprintf(stderr, "Failed to load texture: %s\n", texturePath.c_str());
 	}
 
 	// generate and bind texture object
@@ -298,85 +349,114 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================
 
 		//================ VAO ATTRIBUTES ===========================
-		// Attach position buffer as attribute 0
-		if (positionVBO != 0)
+		// attach variables for each shape
+		size_t vertex_buffer_offset = 0;
+		size_t texCoords_buffer_offset = 0;
+		size_t normals_buffer_offset = 0;
+		size_t indices_buffer_offset = 0;
+		for each(tinyobj::shape_t shape in shapes)
 		{
+			// Attach position buffer as attribute 0
+			if (positionVBO != 0)
+			{
+				glBindVertexArray(meshVAO);
+
+				// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+				// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+				glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)vertex_buffer_offset);
+				//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+				// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+				glEnableVertexAttribArray(0);
+
+				glBindVertexArray(0);
+			}
+
+			// Attach texcoord buffer as attribute 1
+			if (texcoordVBO != 0)
+			{
+				glBindVertexArray(meshVAO);
+
+				// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+				// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+				glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)texCoords_buffer_offset);
+				//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+				// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+				glEnableVertexAttribArray(1);
+
+				glBindVertexArray(0);
+			}
+
+			// Attach normal buffer as attribute 2
+			if (normalVBO != 0)
+			{
+				glBindVertexArray(meshVAO);
+
+				// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+				// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+				glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+				glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)normals_buffer_offset);
+				//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+				// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+				glEnableVertexAttribArray(2);
+
+				glBindVertexArray(0);
+			}
+
+			// attach the index EBO to the mesh VAO
+			if (indicesEBO != 0)
+			{
+				glBindVertexArray(meshVAO);
+
+				// Note: Calling glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); when a VAO is bound attaches the index buffer to the VAO.
+				// From an API design perspective, this is subtle.
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+
+				glBindVertexArray(0);
+			}
+
+			// Can now bind the vertex array object to the graphics pipeline, to render with it.
+			// For example:
 			glBindVertexArray(meshVAO);
+			//============================================================
 
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			// Draw the vertices of the current shape at the current offset
+			glDrawElements(
+				GL_TRIANGLES,
+				shape.mesh.indices.size(),
+				GL_UNSIGNED_INT,
+				(void*)indices_buffer_offset
+			);
 
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(0);
+			// increment offsets
+			vertex_buffer_offset += sizeof(float)* shape.mesh.positions.size();
+			texCoords_buffer_offset += sizeof(float)* shape.mesh.texcoords.size();
+			normals_buffer_offset += sizeof(float)* shape.mesh.normals.size();
+			indices_buffer_offset += sizeof(float)* shape.mesh.indices.size();
 
-			glBindVertexArray(0);
-		}
-
-		// Attach texcoord buffer as attribute 1
-		if (texcoordVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(1);
-
-			glBindVertexArray(0);
-		}
-
-		// Attach normal buffer as attribute 2
-		if (normalVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(2);
-
-			glBindVertexArray(0);
-		}
-
-		// attach the index EBO to the mesh VAO
-		if (indicesEBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: Calling glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); when a VAO is bound attaches the index buffer to the VAO.
-			// From an API design perspective, this is subtle.
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-
-			glBindVertexArray(0);
-		}
-
-		// Can now bind the vertex array object to the graphics pipeline, to render with it.
-		// For example:
-		glBindVertexArray(meshVAO);
-		//============================================================
+			// disable the attribute after drawing
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+		}		
 
 		// Draw the vertices
+		/*
 		glDrawElements(
-			GL_TRIANGLES,      // mode
-			shapes[0].mesh.indices.size(),    // count
-			GL_UNSIGNED_INT,   // type
-			(void*)0           // element array buffer offset
+		GL_TRIANGLES,      // mode
+		shapes[0].mesh.indices.size(),    // count
+		GL_UNSIGNED_INT,   // type
+		(void*)0           // element array buffer offset
 		);
+		*/
 
-		// disable the attribute after drawing
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		
 
 		// disable the depth buffer
 		glDisable(GL_DEPTH_TEST);
