@@ -96,14 +96,14 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO/EBO ===============================
 	// Load the mesh and its materials
-	std::string meshObj = "models/cube/cube.obj";
-	std::string objBase = "models/cube/";
+	//std::string meshObj = "models/cube/cube.obj";
+	//std::string objBase = "models/cube/";
 	//std::string meshObj = "models/tinyobjloader/test-nan.obj";
 	//std::string objBase = "models/tinyobjloader/";
 	//std::string meshObj = "models/wedge/wedge.obj";
 	//std::string objBase = "models/wedge/";
-	//std::string meshObj = "models/test/multiple-test.obj";
-	//std::string objBase = "models/test/";
+	std::string meshObj = "models/test/multiple.obj";
+	std::string objBase = "models/test/";
 
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
