@@ -96,14 +96,14 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO/EBO ===============================
 	// Load the mesh and its materials
-	//std::string meshObj = "models/cube/cube.obj";
-	//std::string objBase = "models/cube/";
+	std::string meshObj = "models/cube/cube.obj";
+	std::string objBase = "models/cube/";
 	//std::string meshObj = "models/tinyobjloader/test-nan.obj";
 	//std::string objBase = "models/tinyobjloader/";
 	//std::string meshObj = "models/wedge/wedge.obj";
 	//std::string objBase = "models/wedge/";
-	std::string meshObj = "models/test/multiple.obj";
-	std::string objBase = "models/test/";
+	//std::string meshObj = "models/test/multiple.obj";
+	//std::string objBase = "models/test/";
 
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -204,8 +204,8 @@ extern "C" int main(int argc, char* argv[])
 	//===================== TEXTURES =============================
 	// get name of texture image from loaded obj
 	int materialId = shapes[0].mesh.material_ids[0];
-	std::string textureFilename = materials[materialId].diffuse_texname;
-	std::string texturePath = objBase + textureFilename;
+	//std::string textureFilename = materials[materialId].diffuse_texname;
+	std::string texturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment2\\models\\cube\\default.png";
 
 	// load the texture image
 	int imgWidth;
