@@ -204,8 +204,8 @@ extern "C" int main(int argc, char* argv[])
 	//===================== TEXTURES =============================
 	// get name of texture image from loaded obj
 	int materialId = shapes[0].mesh.material_ids[0];
-	std::string textureFilename = materials[materialId].diffuse_texname;
-	std::string texturePath = objBase + textureFilename;
+	//std::string textureFilename = materials[materialId].diffuse_texname;
+	std::string texturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment2\\models\\cube\\default.png";
 
 	// load the texture image
 	int imgWidth;
@@ -252,8 +252,10 @@ extern "C" int main(int argc, char* argv[])
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
 	Camera camera = Camera();
+	int frameCount = 0;
     while (1)
     {		
+		frameCount++;
 		//================= UPDATE USER INPUT ========================
 		double currentTime = SDL_GetTicks() / 1000.0;		
 		float deltaTime = float(currentTime - lastTime);
@@ -356,6 +358,33 @@ extern "C" int main(int argc, char* argv[])
 		size_t indices_buffer_offset = 0;
 		for each(tinyobj::shape_t shape in shapes)
 		{
+			if (shape.name == "Sphere")
+			{
+				float targetAngle = (frameCount % 100000) * 0.0036f;
+				glm::mat4 rotModel = glm::rotate(Model, targetAngle, glm::vec3(1, 0, 0));
+				glm::mat4 MVP = Projection * View * rotModel;
+				if (iModelLoc != -1)
+				{
+					glUniformMatrix4fv(iModelLoc, 1, GL_FALSE, &rotModel[0][0]);
+				}
+				if (iModelViewProjectionLoc != -1)
+				{
+					glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &MVP[0][0]);
+				}
+				
+			}
+			else
+			{
+				if (iModelLoc != -1)
+				{
+					glUniformMatrix4fv(iModelLoc, 1, GL_FALSE, &Model[0][0]);
+				}
+				if (iModelViewProjectionLoc != -1)
+				{
+					glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
+				}
+			}
+
 			// Attach position buffer as attribute 0
 			if (positionVBO != 0)
 			{
