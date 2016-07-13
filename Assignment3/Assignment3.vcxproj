@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{78D457AA-B78F-4984-A961-87F6C27EAFF3}</ProjectGuid>
+    <ProjectGuid>{6A1D9AB4-A6AA-40EF-A144-76AC71BCF1E2}</ProjectGuid>
     <RootNamespace>BlankWindow</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Assignment2</ProjectName>
+    <ProjectName>Assignment3</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -80,20 +80,26 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opengl.cpp" />
+    <ClCompile Include="PerlinNoise.cpp" />
     <ClCompile Include="shaderset.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="opengl.h" />
+    <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="shaderset.h" />
+    <ClInclude Include="TerrainMesh.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="a2.frag" />
-    <None Include="a2.vert" />
+    <None Include="a3.frag" />
+    <None Include="a3.vert" />
+    <None Include="SDL2.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

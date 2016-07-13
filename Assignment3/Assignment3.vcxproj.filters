@@ -5,17 +5,23 @@
     <ClCompile Include="opengl.cpp" />
     <ClCompile Include="shaderset.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
+    <ClCompile Include="PerlinNoise.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengl.h" />
     <ClInclude Include="shaderset.h" />
     <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="TerrainMesh.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="PerlinNoise.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="a2.vert" />
-    <None Include="a2.frag" />
+    <None Include="SDL2.dll" />
+    <None Include="a3.vert" />
+    <None Include="a3.frag" />
   </ItemGroup>
 </Project>
