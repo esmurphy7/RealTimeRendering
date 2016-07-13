@@ -84,7 +84,7 @@ extern "C" int main(int argc, char* argv[])
 	);
 
 	// define shader program from vertex and fragment shader files
-	GLuint* shaderId = shaders.AddProgramFromExts({ "a2.vert", "a2.frag" });	
+	GLuint* shaderId = shaders.AddProgramFromExts({ "a3.vert", "a3.frag" });	
 	//============================================================
 
 	//======================== VAO ===============================
@@ -97,7 +97,6 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO/EBO ===============================
 	std::vector<float> normals = std::vector<float>();
-	std::vector<float> texCoords = std::vector<float>();
 
 	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
 	terrainMesh.generate();
@@ -112,12 +111,12 @@ extern "C" int main(int argc, char* argv[])
 
 	// initialize UVcoords VBO	
 	GLuint texcoordVBO = 0;
-	if (!texCoords.empty())
+	if (!terrainMesh.textureCoords.empty())
 	{
 		glGenBuffers(1, &texcoordVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * texCoords.size(), &texCoords[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.textureCoords.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.textureCoords.size(), &terrainMesh.textureCoords[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -142,7 +141,30 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//===================== TEXTURES =============================
-	
+	// generate and bind texture object
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// upload texture data to OpenGL
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA8,
+		terrainMesh.TERRAIN_X,
+		terrainMesh.TERRAIN_Z,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		terrainMesh.textureData.data());
+
+	// set filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_2D, 0);
 	//============================================================
 
 	//======================== LIGHTS ============================
@@ -217,6 +239,14 @@ extern "C" int main(int argc, char* argv[])
 		if (iViewLoc != -1)
 		{
 			glUniformMatrix4fv(iViewLoc, 1, GL_FALSE, &View[0][0]);
+		}
+
+		// activate texture channel 0 and pass it to shader
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		if (iTextureSamplerLoc != -1)
+		{
+			glUniform1i(iTextureSamplerLoc, 0);
 		}
 
 		// pass light position uniform to shader
@@ -312,7 +342,8 @@ extern "C" int main(int argc, char* argv[])
 		glBindVertexArray(meshVAO);
 		//============================================================	
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// draw wireframe of mesh
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		// Draw the vertices		
 		glDrawElements(
