@@ -13,6 +13,7 @@
 #include "tiny_obj_loader.h"
 #include "InputHandler.h"
 #include "Camera.h"
+#include "TerrainMesh.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -95,66 +96,48 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	float normals[1];
-	float texCoords[1];
-	const int mapSize = 100;
-	float vertices[(mapSize + 1) * (mapSize + 1)];
-	int indices[((mapSize)*(mapSize)) * 6];
+	std::vector<float> normals = std::vector<float>();
+	std::vector<float> texCoords = std::vector<float>();
 
-	for (int x = 0; x < mapSize + 1; x++)
-	{
-		for (int y = 0; y < mapSize + 1; y++)
-		{
-			int li_offset = x * (mapSize + 1) + y;
-			vertices[li_offset] = x / 4.0f;
-			vertices[li_offset + 1] = 0;
-			vertices[li_offset + 2] = (y / 4.0f);
-		}
-	}
-
-	int index = 0;
-	for (int x = 0; x < mapSize; x++)
-	{
-		for (int y = 0; y < mapSize; y++)
-		{
-			indices[index + 0] = (short)(x * (mapSize + 1) + y);
-			indices[index + 1] = (short)(indices[index + 0] + mapSize + 2);
-			indices[index + 2] = (short)(indices[index + 0] + mapSize + 1);
-
-			indices[index + 3] = (short)(indices[index + 0]);
-			indices[index + 4] = (short)(indices[index + 0] + 1);
-			indices[index + 5] = (short)(indices[index + 0] + 2);
-
-			index += 6;
-		}
-	}
+	TerrainMesh terrainMesh = TerrainMesh(4, 4, 0);
+	terrainMesh.generate();
 
 	// initialize vertex VBO
 	GLuint positionVBO = 0;
 	glGenBuffers(1, &positionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* terrainMesh.vertices.size(), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)* terrainMesh.vertices.size(), &terrainMesh.vertices[0]);	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// initialize UVcoords VBO
+	// initialize UVcoords VBO	
 	GLuint texcoordVBO = 0;
-	glGenBuffers(1, &texcoordVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	if (!texCoords.empty())
+	{
+		glGenBuffers(1, &texcoordVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * texCoords.size(), &texCoords[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
-	// initialize normals VBO
+	// initialize normals VBO	
 	GLuint normalVBO = 0;
-	glGenBuffers(1, &normalVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	if (!normals.empty())
+	{
+		glGenBuffers(1, &normalVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * normals.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * normals.size(), &normals[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
 	// initialize indices EBO
 	GLuint indicesEBO = 0;
 	glGenBuffers(1, &indicesEBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * terrainMesh.indices.size(), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * terrainMesh.indices.size(), &terrainMesh.indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	//============================================================
 
@@ -331,10 +314,10 @@ extern "C" int main(int argc, char* argv[])
 
 		// Draw the vertices		
 		glDrawElements(
-			GL_TRIANGLES,      // mode
-			sizeof(indices),    // count
-			GL_UNSIGNED_INT,   // type
-			(void*)0           // element array buffer offset
+			GL_TRIANGLES,					// mode
+			terrainMesh.indices.size(),		// count
+			GL_UNSIGNED_INT,				// type
+			(void*)0						// element array buffer offset
 		);
 
 		// disable the attribute after drawing
