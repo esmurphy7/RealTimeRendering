@@ -3,6 +3,9 @@
 class TerrainMesh
 {
 private:
+	const int MAX_TERRAIN_X = 100.0f;
+	const int MAX_TERRAIN_Z = 100.0f;
+	const int MAX_TERRAIN_HEIGHT = 10;
 	int TERRAIN_X, TERRAIN_Z;
 	float Y_POSITION;	
 	float generateHeight(glm::vec3 point, float H, float lacunarity, int octaves);
@@ -27,22 +30,13 @@ TerrainMesh::TerrainMesh(int terrainX, int terrainZ, float yPos)
 
 void TerrainMesh::generate()
 {
-	const int TERRAIN_VERTEXCOUNT = (TERRAIN_X * TERRAIN_Z);
-
-	// The triangle count is the number of quads (which is one
-	// less than each dimension of the terrain vertex map) multiplied
-	// by two (as we need two triangles to make up each quad).
-	const int TERRAIN_TRIANGLECOUNT = ((TERRAIN_X - 1)*(TERRAIN_Z - 1) * 2);
-	const int TERRAINSIZE = 25.0f;
-	const int TERRAINHEIGHT = 10;
-
 	float fTerrainX, fTerrainZ;
 
 	// generate vertices
-	fTerrainZ = -TERRAINSIZE / 2;
+	fTerrainZ = -MAX_TERRAIN_Z / 2;
 	for (int z = 0; z < TERRAIN_Z; z++)
 	{
-		fTerrainX = -TERRAINSIZE / 2;
+		fTerrainX = -MAX_TERRAIN_X / 2;
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
 			// generate height for the vertex
@@ -53,9 +47,9 @@ void TerrainMesh::generate()
 			vertices.push_back(height);
 			vertices.push_back(fTerrainZ);
 
-			fTerrainX += (TERRAINSIZE / (TERRAIN_X - 1));
+			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
 		}
-		fTerrainZ += (TERRAINSIZE / (TERRAIN_Z - 1));
+		fTerrainZ += (MAX_TERRAIN_Z / (TERRAIN_Z - 1));
 	}
 
 	// generate indices
@@ -82,7 +76,8 @@ void TerrainMesh::generate()
 float Basis(glm::vec3 point)
 {
 	float r = rand() / (float)RAND_MAX;
-	return r * 3.0f;
+	//return r * 3.0f;
+	return r;
 }
 
 /*

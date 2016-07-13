@@ -99,7 +99,7 @@ extern "C" int main(int argc, char* argv[])
 	std::vector<float> normals = std::vector<float>();
 	std::vector<float> texCoords = std::vector<float>();
 
-	TerrainMesh terrainMesh = TerrainMesh(4, 4, 0);
+	TerrainMesh terrainMesh = TerrainMesh(64, 64, 0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
