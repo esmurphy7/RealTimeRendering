@@ -1,4 +1,5 @@
 #include <vector>
+#include "PerlinNoise.h"
 
 class TerrainMesh
 {
@@ -8,6 +9,8 @@ private:
 	const int MAX_TERRAIN_HEIGHT = 10;
 	int TERRAIN_X, TERRAIN_Z;
 	float Y_POSITION;	
+	PerlinNoise perlinNoise;
+	float Basis(glm::vec3);
 	float generateHeight(glm::vec3 point, float H, float lacunarity, int octaves);
 
 public:
@@ -73,10 +76,12 @@ void TerrainMesh::generate()
 /*
 *  Perlin noise basis function
 */
-float Basis(glm::vec3 point)
+float TerrainMesh::Basis(glm::vec3 point)
 {
-	float r = rand() / (float)RAND_MAX;
+	//float r = rand() / (float)RAND_MAX;
 	//return r * 3.0f;
+	
+	float r = perlinNoise.noise(point.x, point.y, Y_POSITION);
 	return r;
 }
 
