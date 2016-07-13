@@ -6,7 +6,7 @@ class TerrainMesh
 private:
 	const int MAX_TERRAIN_X = 100.0f;
 	const int MAX_TERRAIN_Z = 100.0f;
-	const int MAX_TERRAIN_HEIGHT = 10;
+	const int MAX_TERRAIN_HEIGHT = 100;
 	int TERRAIN_X, TERRAIN_Z;
 	float Y_POSITION;	
 	PerlinNoise perlinNoise;
@@ -27,6 +27,7 @@ TerrainMesh::TerrainMesh(int terrainX, int terrainZ, float yPos)
 	TERRAIN_X = terrainX;
 	TERRAIN_Z = terrainZ;
 	Y_POSITION = yPos;
+	perlinNoise = PerlinNoise(7);
 	vertices = std::vector<float>();
 	indices = std::vector<unsigned int>();
 }
@@ -81,7 +82,7 @@ float TerrainMesh::Basis(glm::vec3 point)
 	//float r = rand() / (float)RAND_MAX;
 	//return r * 3.0f;
 	
-	float r = perlinNoise.noise(point.x, point.y, Y_POSITION);
+	float r = perlinNoise.noise(point.x, point.z, 0.8);
 	return r;
 }
 
