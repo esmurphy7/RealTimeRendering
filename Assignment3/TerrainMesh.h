@@ -99,8 +99,8 @@ float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, in
 	float value, frequency, remainder;
 	int i;
 	bool first = true;
-	const int MAX_OCTAVES = 5;
-	float exponent_array[MAX_OCTAVES];
+	const int MAX_OCTAVES = 10;
+	std::vector<float> exponent_array = std::vector<float>();
 
 	/* precompute and store spectral weights */
 	if (first) 
@@ -109,7 +109,7 @@ float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, in
 		for (i = 0; i<MAX_OCTAVES; i++)
 		{
 			/* compute weight for each frequency */
-			exponent_array[i] = pow(frequency, -H);
+			exponent_array.push_back(pow(frequency, -H));
 			frequency *= lacunarity;
 		}
 		first = false;
@@ -120,7 +120,7 @@ float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, in
 	for (i = 0; i<octaves; i++) 
 	{
 		float noise = Basis(point);
-		value += noise;// *exponent_array[i];
+		value += noise *exponent_array.at(i);
 		point.x *= lacunarity;
 		point.y *= lacunarity;
 		point.z *= lacunarity;
