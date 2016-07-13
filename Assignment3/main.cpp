@@ -230,7 +230,9 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================
 		
         // Set the color to clear with
-        glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
+        //glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

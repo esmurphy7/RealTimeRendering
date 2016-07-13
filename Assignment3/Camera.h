@@ -33,7 +33,7 @@ Camera::Camera()
 
 	nearClip = 0.1;
 	farClip = 100.0f;
-	position = glm::vec3(0, 0, 10);
+	position = glm::vec3(0, 10, 10);
 }
 
 void Camera::update(InputData inputData, float deltaTime)
