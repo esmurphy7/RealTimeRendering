@@ -98,7 +98,7 @@ extern "C" int main(int argc, char* argv[])
 	//===================== VBO/EBO ===============================
 	std::vector<float> normals = std::vector<float>();
 
-	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
+	TerrainMesh terrainMesh = TerrainMesh(16, 16, 1.0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -149,12 +149,12 @@ extern "C" int main(int argc, char* argv[])
 	// upload texture data to OpenGL
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
-		GL_RGBA8,
+		GL_R32F,
 		terrainMesh.TERRAIN_X,
 		terrainMesh.TERRAIN_Z,
 		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
+		GL_RED,
+		GL_FLOAT,
 		terrainMesh.textureData.data());
 
 	// set filtering parameters

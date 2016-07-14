@@ -17,7 +17,8 @@ public:
 	int TERRAIN_X, TERRAIN_Z;
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<uint8_t> textureData;
+	std::vector<float> heights;
+	std::vector<float> textureData;
 	std::vector<float> textureCoords;
 
 	TerrainMesh(int, int, float);
@@ -32,13 +33,15 @@ TerrainMesh::TerrainMesh(int terrainX, int terrainZ, float yPos)
 	perlinNoise = PerlinNoise(7);
 	vertices = std::vector<float>();
 	indices = std::vector<unsigned int>();
+	heights = std::vector<float>();
 	textureCoords = std::vector<float>();
-	textureData = std::vector<uint8_t>();
+	textureData = std::vector<float>();
 }
 
 void TerrainMesh::generate()
 {
 	float fTerrainX, fTerrainZ;
+	float largestHeight = 0;
 
 	// generate vertices
 	fTerrainZ = -MAX_TERRAIN_Z / 2;
@@ -48,18 +51,16 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
 			// generate height for the vertex
-			float height = generateHeight(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 2.0, 7);
+			float height = generateHeight(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
+			if (height > largestHeight)
+			{
+				largestHeight = height;
+			}
+			heights.push_back(height);			
 
-			// generate RGB colour and texture coordinates
-			uint8_t R = 0;
-			uint8_t G = 0;
-			uint8_t B = Uint8(256 * height);
-			textureData.push_back(R);
-			textureData.push_back(G);
-			textureData.push_back(B);
-
-			textureCoords.push_back(fTerrainZ);
-			textureCoords.push_back(fTerrainX);
+			// store texture coords
+			textureCoords.push_back(x);
+			textureCoords.push_back(z);
 
 			// store vertex
 			vertices.push_back(fTerrainX);
@@ -86,6 +87,20 @@ void TerrainMesh::generate()
 			indices.push_back((x + 1) + (z + 1) * TERRAIN_X);
 			indices.push_back((x + 1) + z * TERRAIN_X);
 		}
+	}
+
+	// generate texture pixels given height values
+	for (int i = 0; i < heights.size(); i++)
+	{
+		// generate RGB colour and texture coordinates
+		//float R = 1.0f;
+		float R = heights.at(i) / largestHeight;
+		float G = 1.0f;
+		//float B = heights.at(i) / largestHeight;
+		float B = 1.0f;
+		textureData.push_back(R);
+		//textureData.push_back(G);
+		//textureData.push_back(B);
 	}
 }
 
