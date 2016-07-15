@@ -96,8 +96,6 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	std::vector<float> normals = std::vector<float>();
-
 	TerrainMesh terrainMesh = TerrainMesh(16, 16, 1.0);
 	terrainMesh.generate();
 
@@ -122,12 +120,12 @@ extern "C" int main(int argc, char* argv[])
 
 	// initialize normals VBO	
 	GLuint normalVBO = 0;
-	if (!normals.empty())
+	if (!terrainMesh.normals.empty())
 	{
 		glGenBuffers(1, &normalVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * normals.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * normals.size(), &normals[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.normals.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.normals.size(), &terrainMesh.normals[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -168,7 +166,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//======================== LIGHTS ============================
-	glm::vec3 light = glm::vec3(4, 4, 4);
+	glm::vec3 light = glm::vec3(4, 10, 4);
 	//============================================================
 
     // Begin main loop

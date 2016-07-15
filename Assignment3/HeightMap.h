@@ -6,7 +6,7 @@
 class HeightMap
 {
 private:
-	glm::vec3			baseColor = glm::vec3(1.0, 0.0, 1.0);
+	glm::vec3			baseColor = glm::vec3(1.0, 0.0, 0.0);
 	std::vector<float>	heights = std::vector<float>();
 	float				largestHeight = 0.0;
 

@@ -103,6 +103,30 @@ void TerrainMesh::generate()
 				indices.push_back((x + 1) + z * TERRAIN_X);
 			}					
 
+			// generate normals
+			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);
+			/*
+			float hL = heights.at(P.xy - offset.xz);
+			float hR = height(P.xy + offset.xz);
+			float hD = height(P.xy - offset.zy);
+			float hU = height(P.xy + offset.zy);
+			*/
+			// get heights of left, right, up and down vertices
+			float hL = heightMap.getHeightAt(vertex.x - offset.x, vertex.y - offset.z);
+			float hR = heightMap.getHeightAt(vertex.x + offset.x, vertex.y + offset.z);
+			float hD = heightMap.getHeightAt(vertex.x - offset.z, vertex.y - offset.y);
+			float hU = heightMap.getHeightAt(vertex.x + offset.z, vertex.y + offset.y);
+
+			// compute and store normal
+			glm::vec3 normal;
+			normal.x = hL - hR;
+			normal.y = hD - hU;
+			normal.z = 2.0;
+			normal = normalize(normal);
+			normals.push_back(normal.x);
+			normals.push_back(normal.y);
+			normals.push_back(normal.z);
+
 			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
 		}
 		fTerrainZ += (MAX_TERRAIN_Z / (TERRAIN_Z - 1));
