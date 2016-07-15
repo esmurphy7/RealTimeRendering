@@ -11,8 +11,8 @@ private:
 	float Y_POSITION;	
 	PerlinNoise perlinNoise;	
 
-	float Basis(glm::vec3);
-	float generateHeight(glm::vec3 point, float H, float lacunarity, int octaves);
+	float generatePerlinNoise(glm::vec3);
+	float fBm(glm::vec3 point, float H, float lacunarity, int octaves);
 
 public:
 	int TERRAIN_X, TERRAIN_Z;
@@ -52,8 +52,8 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
 			// generate height for the vertex
-			//float height = generateHeight(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
-			float height = Basis(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ));
+			//float height = fBm(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
+			float height = generatePerlinNoise(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ));
 			if (height > largestHeight)
 			{
 				largestHeight = height;
@@ -115,11 +115,8 @@ void TerrainMesh::generate()
 /*
 *  Perlin noise basis function
 */
-float TerrainMesh::Basis(glm::vec3 point)
+float TerrainMesh::generatePerlinNoise(glm::vec3 point)
 {
-	//float r = rand() / (float)RAND_MAX;
-	//return r * 3.0f;
-	
 	float r = perlinNoise.noise(point.x, point.z, 0.8);
 	return r;
 }
@@ -132,7 +129,7 @@ float TerrainMesh::Basis(glm::vec3 point)
 * "lacunarity" is the gap between successive frequencies
 * "octaves" is the number of frequencies in the fBm
 */
-float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, int octaves)
+float TerrainMesh::fBm(glm::vec3 point, float H, float lacunarity, int octaves)
 {
 	float value, frequency, remainder;
 	int i;
@@ -157,7 +154,7 @@ float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, in
 	/* inner loop of spectral construction */
 	for (i = 0; i<octaves; i++) 
 	{
-		float noise = Basis(point);
+		float noise = generatePerlinNoise(point);
 		value += noise *exponent_array.at(i);
 		point.x *= lacunarity;
 		point.y *= lacunarity;
@@ -168,7 +165,7 @@ float TerrainMesh::generateHeight(glm::vec3 point, float H, float lacunarity, in
 	if (remainder) /* add in "octaves" remainder */
 	{
 		/* "i" and spatial freq. are preset in loop above */
-		value += remainder * Basis(point) * exponent_array[i];
+		value += remainder * generatePerlinNoise(point) * exponent_array[i];
 	}
 	return(value);
 }
