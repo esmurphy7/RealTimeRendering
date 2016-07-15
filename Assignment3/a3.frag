@@ -10,8 +10,5 @@ out vec3 color;
 	
 void main()
 {
-	//color = vec3(1.0, 1.0, 1.0);
-	color.r = texture( iTextureSampler, UV ).r;
-	color.g = 1.0;
-	color.b = 0.0;
+	color = texture( iTextureSampler, UV ).rgb;
 }

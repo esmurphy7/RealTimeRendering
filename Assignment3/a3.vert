@@ -13,7 +13,13 @@ out vec3 LightDirection_cameraspace;
 void main()
 {
 	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  iModelViewProjection * vec4(vertexPosition_modelspace,1);
+	 // Offset the y position by the value of current texel's colour value ?
+	vec4 textureColor = texture(iTextureSampler, vertexUV);
+
+	// offset the height (y-position) of the vertex based on the texture's R color
+    vec4 offset = vec4(vertexPosition_modelspace.x, 30.0*textureColor.r, vertexPosition_modelspace.z, 1.0);
+	gl_Position =  iModelViewProjection * offset;
+	//gl_Position =  iModelViewProjection * vec4(vertexPosition_modelspace, 1);
 	
 	// Position of the vertex, in worldspace : M * position
 	Position_worldspace = (iModel * vec4(vertexPosition_modelspace,1)).xyz;
@@ -31,5 +37,5 @@ void main()
 	Normal_cameraspace = ( iView * iModel * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
 	
 	// UV of the vertex. No special space for this one.
-	UV = vertexUV;
+	UV = vertexUV;	
 }

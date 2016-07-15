@@ -153,7 +153,7 @@ extern "C" int main(int argc, char* argv[])
 		terrainMesh.TERRAIN_X,
 		terrainMesh.TERRAIN_Z,
 		0,
-		GL_RED,
+		GL_RGB,
 		GL_FLOAT,
 		terrainMesh.textureData.data());
 

@@ -15,6 +15,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="PerlinNoise.h" />
+    <ClInclude Include="PPM_File.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
@@ -23,5 +24,6 @@
     <None Include="SDL2.dll" />
     <None Include="a3.vert" />
     <None Include="a3.frag" />
+    <None Include="heightmap.ppm" />
   </ItemGroup>
 </Project>

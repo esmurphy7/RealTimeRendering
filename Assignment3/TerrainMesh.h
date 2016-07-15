@@ -1,5 +1,6 @@
 #include <vector>
 #include "PerlinNoise.h"
+#include "PPM_File.h"
 
 class TerrainMesh
 {
@@ -51,7 +52,8 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
 			// generate height for the vertex
-			float height = generateHeight(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
+			//float height = generateHeight(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
+			float height = Basis(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ));
 			if (height > largestHeight)
 			{
 				largestHeight = height;
@@ -59,12 +61,14 @@ void TerrainMesh::generate()
 			heights.push_back(height);			
 
 			// store texture coords
-			textureCoords.push_back(x);
-			textureCoords.push_back(z);
+			float texU = (float)x / (float)TERRAIN_X;
+			float texV = (float)z / (float)TERRAIN_Z;
+			textureCoords.push_back(texU);
+			textureCoords.push_back(texV);
 
 			// store vertex
 			vertices.push_back(fTerrainX);
-			vertices.push_back(height);
+			vertices.push_back(Y_POSITION);
 			vertices.push_back(fTerrainZ);
 
 			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
@@ -89,19 +93,23 @@ void TerrainMesh::generate()
 		}
 	}
 
-	// generate texture pixels given height values
+	// generate height map and save to file
+	PPM_File ppmFile;
+	ppmFile.open("heightmap.ppm", TERRAIN_X, TERRAIN_Z);
 	for (int i = 0; i < heights.size(); i++)
 	{
-		// generate RGB colour and texture coordinates
-		//float R = 1.0f;
-		float R = heights.at(i) / largestHeight;
-		float G = 1.0f;
-		//float B = heights.at(i) / largestHeight;
-		float B = 1.0f;
+		// generate color and store as texture data
+		float R = 1.0 - (heights.at(i) / largestHeight);
+		float G = 0.0f;
+		float B = 0.0f;
 		textureData.push_back(R);
-		//textureData.push_back(G);
-		//textureData.push_back(B);
+		textureData.push_back(G);
+		textureData.push_back(B);
+
+		// write texture data to ppm file after done generating
+		ppmFile.writeColor(R, G, B);
 	}
+	ppmFile.close();
 }
 
 /*
