@@ -101,7 +101,7 @@ void TerrainMesh::generate()
 		// generate color and store as texture data
 		float R = 1.0 - (heights.at(i) / largestHeight);
 		float G = 0.0f;
-		float B = 0.0f;
+		float B = 1.0f;
 		textureData.push_back(R);
 		textureData.push_back(G);
 		textureData.push_back(B);

@@ -149,7 +149,7 @@ extern "C" int main(int argc, char* argv[])
 	// upload texture data to OpenGL
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
-		GL_R32F,
+		GL_RGB32F,
 		terrainMesh.TERRAIN_X,
 		terrainMesh.TERRAIN_Z,
 		0,
