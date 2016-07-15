@@ -155,7 +155,7 @@ extern "C" int main(int argc, char* argv[])
 		0,
 		GL_RGB,
 		GL_FLOAT,
-		terrainMesh.textureData.data());
+		terrainMesh.heightMap.pixelData.data());
 
 	// set filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
