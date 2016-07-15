@@ -35,7 +35,7 @@ Camera::Camera(glm::vec3 origin)
 	verticalAngle = 0.0f;
 
 	nearClip = 0.1;
-	farClip = 100.0f;
+	farClip = 1000.0f;
 	position = origin;
 }
 

@@ -75,7 +75,7 @@ float HeightMap::getHeightAt(int x, int y)
 	if (x >= WIDTH) x = WIDTH - 1;
 	if (y >= HEIGHT) y = HEIGHT - 1;
 
-	float height = heights.at(y * WIDTH + x);
+	float height = heights.at(y * HEIGHT + x);
 	return height;
 }
 
