@@ -16,7 +16,7 @@ struct InputData
 class InputHandler
 {
 private:
-	const float KEY_SPEED = 10.0f;	
+	const float KEY_SPEED = 30.0f;	
 	const float MOUSE_SPEED = 0.5f;
 	const float MAX_MOUSE_WHEEL = 5.0f;
 	const float MIN_MOUSE_WHEEL = -5.0f;
