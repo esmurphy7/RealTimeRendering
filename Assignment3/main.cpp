@@ -96,7 +96,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(16, 16, 1.0);
+	TerrainMesh terrainMesh = TerrainMesh(16, 16, 1.0, 7);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -172,7 +172,7 @@ extern "C" int main(int argc, char* argv[])
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
-	Camera camera = Camera();
+	Camera camera = Camera(4, 10, 4);
     while (1)
     {		
 		//================= UPDATE USER INPUT ========================

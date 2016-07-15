@@ -21,11 +21,14 @@ public:
 	glm::vec3 up;
 	glm::vec3 right;
 
-	Camera();
+	Camera(float x, float y, float z);
+	Camera(glm::vec3 origin);	
 	void update(InputData, float);
 };
 
-Camera::Camera()
+Camera::Camera(float x, float y, float z) : Camera(glm::vec3(x, y, z)) { }
+
+Camera::Camera(glm::vec3 origin)
 {
 	initialFoV = 45.0f;
 	horizontalAngle = 3.14f;
@@ -33,7 +36,7 @@ Camera::Camera()
 
 	nearClip = 0.1;
 	farClip = 100.0f;
-	position = glm::vec3(0, 10, 10);
+	position = origin;
 }
 
 void Camera::update(InputData inputData, float deltaTime)

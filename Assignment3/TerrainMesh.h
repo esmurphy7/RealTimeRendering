@@ -24,16 +24,16 @@ public:
 	std::vector<float>			normals;
 	std::vector<float>			textureCoords;
 
-	TerrainMesh(int, int, float);
+	TerrainMesh(int, int, float, int);
 	void generate();
 };
 
-TerrainMesh::TerrainMesh(int terrainX, int terrainZ, float yPos)
+TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 {
-	TERRAIN_X = terrainX;
-	TERRAIN_Z = terrainZ;
+	TERRAIN_X = width;
+	TERRAIN_Z = height;
 	Y_POSITION = yPos;
-	perlinNoise = PerlinNoise(7);
+	perlinNoise = PerlinNoise(seed);
 	vertices = std::vector<float>();
 	indices = std::vector<unsigned int>();
 	normals = std::vector<float>();
