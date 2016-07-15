@@ -88,26 +88,24 @@ void TerrainMesh::generate()
 			vertices.push_back(vertex.y);
 			vertices.push_back(vertex.z);
 
+			// generate indices
+			if (x < TERRAIN_X - 1 &&
+				z < TERRAIN_Z - 1)
+			{
+				// build indices for first triangle in the quad
+				indices.push_back(x + z * TERRAIN_X);
+				indices.push_back(x + (z + 1) * TERRAIN_X);
+				indices.push_back((x + 1) + z * TERRAIN_X);
+
+				// build indices for second triangle in the quad
+				indices.push_back(x + (z + 1) * TERRAIN_X);
+				indices.push_back((x + 1) + (z + 1) * TERRAIN_X);
+				indices.push_back((x + 1) + z * TERRAIN_X);
+			}					
+
 			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
 		}
 		fTerrainZ += (MAX_TERRAIN_Z / (TERRAIN_Z - 1));
-	}
-
-	// generate indices
-	for (int x = 0; x < TERRAIN_X - 1; x++)
-	{
-		for (int z = 0; z < TERRAIN_Z - 1; z++)
-		{
-			// build indices for first triangle in the quad
-			indices.push_back(x + z * TERRAIN_X);
-			indices.push_back(x + (z + 1) * TERRAIN_X);
-			indices.push_back((x + 1) + z * TERRAIN_X);
-
-			// build indices for second triangle in the quad
-			indices.push_back(x + (z + 1) * TERRAIN_X);
-			indices.push_back((x + 1) + (z + 1) * TERRAIN_X);
-			indices.push_back((x + 1) + z * TERRAIN_X);
-		}
 	}	
 }
 
