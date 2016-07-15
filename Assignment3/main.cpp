@@ -166,15 +166,18 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//======================== LIGHTS ============================
-	glm::vec3 light = glm::vec3(4, 10, 4);
+	glm::vec3 light = glm::vec3(4, -20, 4);
 	//============================================================
 
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
-	Camera camera = Camera(4, 10, 4);
+	Camera camera = Camera(4, -20, 4);
     while (1)
-    {		
+    {	
+		// DEBUG
+		std::cout << "CamPos: " << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+
 		//================= UPDATE USER INPUT ========================
 		double currentTime = SDL_GetTicks() / 1000.0;		
 		float deltaTime = float(currentTime - lastTime);

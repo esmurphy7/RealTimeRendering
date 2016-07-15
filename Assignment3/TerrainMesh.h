@@ -104,25 +104,66 @@ void TerrainMesh::generate()
 			}					
 
 			// generate normals
-			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);
+			glm::vec3 normal;
+
+			// METHOD 1 ============================================
 			/*
+			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);			
 			float hL = heights.at(P.xy - offset.xz);
 			float hR = height(P.xy + offset.xz);
 			float hD = height(P.xy - offset.zy);
 			float hU = height(P.xy + offset.zy);
 			*/
+			
 			// get heights of left, right, up and down vertices
-			float hL = heightMap.getHeightAt(vertex.x - offset.x, vertex.y - offset.z);
-			float hR = heightMap.getHeightAt(vertex.x + offset.x, vertex.y + offset.z);
-			float hD = heightMap.getHeightAt(vertex.x - offset.z, vertex.y - offset.y);
-			float hU = heightMap.getHeightAt(vertex.x + offset.z, vertex.y + offset.y);
-
-			// compute and store normal
-			glm::vec3 normal;
+			/*
+			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);
+			float hL = heightMap.getHeightAt(vertex.x - offset.x, vertex.z - offset.z);
+			float hR = heightMap.getHeightAt(vertex.x + offset.x, vertex.z + offset.z);
+			float hD = heightMap.getHeightAt(vertex.x - offset.z, vertex.z - offset.y);
+			float hU = heightMap.getHeightAt(vertex.x + offset.z, vertex.z + offset.y);
+			
+			// compute and store normal			
 			normal.x = hL - hR;
 			normal.y = hD - hU;
 			normal.z = 2.0;
 			normal = normalize(normal);
+			*/
+			
+			// METHOD 2 ============================================
+			/*
+			nX = -(map.getHeight(vX + 1, vZ) - map.getHeight(vX - 1, vZ));
+            nZ = (map.getHeight(vX, vZ + 1) - map.getHeight(vX, vZ - 1));
+
+            normal = new Normal();
+            normal.x = nX * TerrainBlock.SCALE_VERTICAL;
+            normal.y = 2 * TerrainBlock.SCALE_HORIZONTAL;
+            normal.z = nZ * TerrainBlock.SCALE_VERTICAL;
+			*/
+
+			/*
+			float nX = -(heightMap.getHeightAt(vertex.x + 1, vertex.z) - heightMap.getHeightAt(vertex.x - 1, vertex.z));
+			float nZ = (heightMap.getHeightAt(vertex.x, vertex.z + 1) - heightMap.getHeightAt(vertex.x, vertex.z - 1));			
+
+			normal.x = nX;
+			normal.y = 2.0;
+			normal.z = nZ;
+			*/
+
+			// METHOD 3 ============================================
+			
+			float offset = 1.0;
+			float hL = heightMap.getHeightAt(vertex.x - offset, vertex.z);
+			float hR = heightMap.getHeightAt(vertex.x + offset, vertex.z);
+			float hD = heightMap.getHeightAt(vertex.x, vertex.z - offset);
+			float hU = heightMap.getHeightAt(vertex.x, vertex.z + offset);	
+
+			normal.x = hL - hR;
+			normal.z = hD - hU;
+			normal.y = 2.0;
+			normal = normalize(normal);
+
+
 			normals.push_back(normal.x);
 			normals.push_back(normal.y);
 			normals.push_back(normal.z);
