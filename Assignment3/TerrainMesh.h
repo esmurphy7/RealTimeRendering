@@ -53,7 +53,7 @@ void TerrainMesh::generate()
 		fTerrainX = -MAX_TERRAIN_X / 2;
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
-			//float height = fBm(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
+			//float height = 10.0*fBm(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
 			float height = generatePerlinNoise(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ));
 			if (height > largestHeight)
 			{
@@ -77,13 +77,15 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{			
 			// store texture coords
-			float texU = (float)x / (float)TERRAIN_X;
-			float texV = (float)z / (float)TERRAIN_Z;
+			const int TILE_X = TERRAIN_X / 2;
+			const int TILE_Z = TERRAIN_Z / 2;
+			float texU = (float)x / (float)TILE_X;
+			float texV = (float)z / (float)TILE_Z;
 			textureCoords.push_back(texU);
 			textureCoords.push_back(texV);
 
 			// store vertex
-			glm::vec3 vertex = glm::vec3(fTerrainX, Y_POSITION, fTerrainZ);
+			glm::vec3 vertex = glm::vec3(fTerrainX, heightMap.getHeightAt(fTerrainX, fTerrainZ), fTerrainZ);
 			vertices.push_back(vertex.x);
 			vertices.push_back(vertex.y);
 			vertices.push_back(vertex.z);
