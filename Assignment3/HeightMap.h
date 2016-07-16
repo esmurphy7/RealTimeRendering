@@ -56,7 +56,7 @@ void HeightMap::generatePixelData()
 	for (int i = 0; i < heights.size(); i++)
 	{
 		// generate color and store as texture data
-		float R = baseColor.r - (heights.at(i) / largestHeight);
+		float R = heights.at(i) / largestHeight;
 		pixelData.push_back(R);
 		pixelData.push_back(baseColor.g);
 		pixelData.push_back(baseColor.b);

@@ -27,4 +27,11 @@
     <None Include="a3.frag" />
     <None Include="heightmap.ppm" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="tiles\grass.tga" />
+    <Image Include="tiles\rock.tga" />
+    <Image Include="tiles\sand.tga" />
+    <Image Include="tiles\snow.tga" />
+    <Image Include="tiles\water.tga" />
+  </ItemGroup>
 </Project>

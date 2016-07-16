@@ -96,7 +96,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(16, 16, 1.0, 7);
+	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0, 7);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -139,12 +139,30 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//===================== TEXTURES =============================
+	// load .tga texture tiles
+	std::string sandTexturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga";
+	std::string grassTexturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga";
+	std::string snowTexturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga";
+	std::string rockTexturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\rock.tga";
+	std::string waterTexturePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga";
+
+	int imgWidth;
+	int imgHeight;
+	int nColorDepth;
+	unsigned char* pixels = stbi_load(sandTexturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
+
+	if (pixels == NULL)
+	{
+		fprintf(stderr, "Failed to load texture: %s\n", grassTexturePath.c_str());
+	}
+
 	// generate and bind texture object
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// upload texture data to OpenGL
+	/*
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
 		GL_RGB32F,
@@ -154,6 +172,16 @@ extern "C" int main(int argc, char* argv[])
 		GL_RGB,
 		GL_FLOAT,
 		terrainMesh.heightMap.pixelData.data());
+		*/
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA8,
+		imgWidth,
+		imgHeight,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		pixels);
 
 	// set filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -166,13 +194,13 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//======================== LIGHTS ============================
-	glm::vec3 light = glm::vec3(4, -20, 4);
+	glm::vec3 light = glm::vec3(4, 40, 4);
 	//============================================================
 
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
-	Camera camera = Camera(4, -20, 4);
+	Camera camera = Camera(4, 40, 4);
     while (1)
     {	
 		// DEBUG
