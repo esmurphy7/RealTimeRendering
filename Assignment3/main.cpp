@@ -213,7 +213,7 @@ extern "C" int main(int argc, char* argv[])
 		"uniform mat4 iModel;\n"
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
-		"uniform sampler2D SnowTexture;\n"
+		+ texturePreamble
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -314,7 +314,6 @@ extern "C" int main(int argc, char* argv[])
 				glActiveTexture(textureChannel);
 				glBindTexture(GL_TEXTURE_2D, textureId);
 				glUniform1i(iTextureSamplerLoc, uniformChannel);
-				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 		}
 
