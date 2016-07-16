@@ -14,10 +14,10 @@ void main()
 {
 	// Output position of the vertex, in clip space : MVP * position
 	 // Offset the y position by the value of current texel's colour value ?
-	vec4 textureColor = texture(iTextureSampler, vertexUV);
+	vec4 textureColor = texture(SnowTexture, vertexUV);
 
 	// offset the height (y-position) of the vertex based on the texture's R color
-    vec4 offset = vec4(vertexPosition_modelspace.x, 30.0*textureColor.r, vertexPosition_modelspace.z, 1.0);
+    vec4 offset = vec4(vertexPosition_modelspace.x, 5.0*textureColor.r, vertexPosition_modelspace.z, 1.0);
 	gl_Position =  iModelViewProjection * offset;
 	//gl_Position =  iModelViewProjection * vec4(vertexPosition_modelspace, 1);
 	
