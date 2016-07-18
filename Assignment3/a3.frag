@@ -17,7 +17,7 @@ void main()
 	
 	// Material properties	
 	//vec3 MaterialDiffuseColor = vec3(1.0, 0.4, 1.0);
-	vec3 MaterialDiffuseColor = texture( SandTexture, UV ).rgb;
+	vec3 MaterialDiffuseColor = texture( iTextureArray, vec3(UV, 0) ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 

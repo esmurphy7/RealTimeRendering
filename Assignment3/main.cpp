@@ -121,6 +121,9 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//===================== TEXTURES =============================
+	const unsigned int TextureWidth = 512;
+	const unsigned int TextureHeight = 512;
+
 	// map names of textures to their paths	
 	std::map<std::string, std::string> texturePathsByName = {
 		{"SandTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga"},		
@@ -129,10 +132,16 @@ extern "C" int main(int argc, char* argv[])
 		{"GrassTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"}
 	};
 
-	// map opengl texture ids to shader uniforms
-	std::map<GLuint, std::string> textureUniformById = std::map<GLuint, std::string>();
+	// generate and bind texture object
+	GLuint textureArrayId;
+	glGenTextures(1, &textureArrayId);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, TextureWidth, TextureHeight, texturePathsByName.size());
 
 	// for each texture path, load it and create an opengl reference for it
+	unsigned char texels[TextureWidth * TextureHeight * 6];
+	int i = 0;
+	int layerNumber = 0;
 	for (std::map<std::string, std::string>::iterator iterator = texturePathsByName.begin(); iterator != texturePathsByName.end(); iterator++)
 	{
 		std::string textureName = iterator->first;
@@ -144,40 +153,50 @@ extern "C" int main(int argc, char* argv[])
 
 		// load the texture file
 		unsigned char* pixels = stbi_load(texturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
-
 		if (pixels == NULL)
 		{
 			fprintf(stderr, "Failed to load texture file: %s\n", texturePath.c_str());
 			continue;
 		}
+		if (imgWidth != TextureWidth || imgHeight != TextureHeight)
+		{
+			fprintf(stderr, "Image dimensions does not match texture dimensions: %s\n", texturePath.c_str());
+			continue;
+		}
 
-		// generate and bind texture object
-		GLuint textureId;
-		glGenTextures(1, &textureId);
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		// move pixels into 2d texel array
+		unsigned char pixel = *pixels;
+		while (pixel != NULL)
+		{
+			texels[i] = pixel;
+			pixel = *(pixels++);
+			i++;
+		}				
 
 		// upload texture data
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RGBA8,
-			imgWidth,
-			imgHeight,
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			pixels);
+		glTexSubImage3D(
+			GL_TEXTURE_2D_ARRAY, 
+			0, 
+			0, 
+			0, 
+			layerNumber, 
+			TextureWidth, 
+			TextureHeight, 
+			texturePathsByName.size(), 
+			GL_RGBA, 
+			GL_UNSIGNED_BYTE, 
+			texels);
 
 		// set filtering parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		// unbind texture
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-		// map the opengl texture id to a shader uniform
-		textureUniformById.insert(std::pair<GLuint, std::string>(textureId, textureName));
+		layerNumber++;
 	}	
 
 	// upload texture data to OpenGL
@@ -199,21 +218,13 @@ extern "C" int main(int argc, char* argv[])
 	ShaderSet shaders;
 	shaders.SetVersion("330");
 
-	// build preamble uniform for each texture uniform
-	std::string texturePreamble = "";
-	for (std::map<GLuint, std::string>::iterator iterator = textureUniformById.begin(); iterator != textureUniformById.end(); iterator++)
-	{
-		std::string uniformName = iterator->second;
-		texturePreamble += "uniform sampler2D " + uniformName + ";\n";
-	}
-
 	// set uniforms (use preambles here or define them in the shader file, but NOT both)
 	shaders.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
 		"uniform mat4 iModel;\n"
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
-		+ texturePreamble
+		"uniform 2DArraySampler iTextureArray;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -299,23 +310,14 @@ extern "C" int main(int argc, char* argv[])
 			glUniform3f(iLightPosition_worldspaceLoc, light.x, light.y, light.z);
 		}		
 
-		// for each texture loaded, send a uniform to shader	
-		for (std::map<GLuint, std::string>::iterator iterator = textureUniformById.begin(); iterator != textureUniformById.end(); iterator++)
+		// generate uniform reference and pass it to shader
+		GLuint iTextureArraySamplerLoc = glGetUniformLocation(*shaderId, "iTextureArray");
+		if (iTextureArraySamplerLoc != -1)
 		{
-			GLuint textureId = iterator->first;
-			std::string uniform = iterator->second;
-
-			// generate uniform reference and pass it to shader
-			GLuint iTextureSamplerLoc = glGetUniformLocation(*shaderId, uniform.c_str());
-			if (iTextureSamplerLoc != -1)
-			{
-				GLuint textureChannel = GL_TEXTURE0 + textureId - 1;
-				GLuint uniformChannel = textureChannel - GL_TEXTURE0;
-				glActiveTexture(textureChannel);
-				glBindTexture(GL_TEXTURE_2D, textureId);
-				glUniform1i(iTextureSamplerLoc, uniformChannel);
-			}
-		}
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
+			glUniform1i(iTextureArraySamplerLoc, 0);
+		}		
 
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*shaderId);

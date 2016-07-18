@@ -14,7 +14,7 @@ void main()
 {
 	// Output position of the vertex, in clip space : MVP * position
 	 // Offset the y position by the value of current texel's colour value ?
-	vec4 textureColor = texture(SandTexture, vertexUV);
+	vec4 textureColor = texture(iTextureArray, vec3(vertexUV, 0));
 
 	// offset the height (y-position) of the vertex based on the texture's R color
     vec4 offset = vec4(vertexPosition_modelspace.x, textureColor.r, vertexPosition_modelspace.z, 1.0);
