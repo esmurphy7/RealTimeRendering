@@ -127,9 +127,9 @@ extern "C" int main(int argc, char* argv[])
 	// initialize set of texture paths
 	std::vector<std::string> texturePaths = {
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",		
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
-		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"
+		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},		
 	};
 
 	// generate and bind texture object

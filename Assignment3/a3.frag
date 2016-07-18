@@ -4,6 +4,7 @@ in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
+in flat int TargetTextureId;
 
 // Ouput data
 out vec3 color;
@@ -17,7 +18,7 @@ void main()
 	
 	// Material properties	
 	//vec3 MaterialDiffuseColor = vec3(1.0, 0.4, 1.0);
-	vec3 MaterialDiffuseColor = texture( iTextureArray, vec3(UV, 2) ).rgb;
+	vec3 MaterialDiffuseColor = texture( iTextureArray, vec3(UV, TargetTextureId) ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
