@@ -124,12 +124,12 @@ extern "C" int main(int argc, char* argv[])
 	const unsigned int TextureWidth = 512;
 	const unsigned int TextureHeight = 512;
 
-	// map names of textures to their paths	
-	std::map<std::string, std::string> texturePathsByName = {
-		{"SandTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga"},		
-		{"SnowTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga"},
+	// initialize set of texture paths
+	std::vector<std::string> texturePaths = {
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",		
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
 		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},
-		//{"GrassTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"}
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"
 	};
 
 	// generate and bind texture object
@@ -144,7 +144,7 @@ extern "C" int main(int argc, char* argv[])
 		GL_RGBA8,					// internal format		
 		TextureWidth,				// width
 		TextureHeight,				// height
-		texturePathsByName.size(),  // depth
+		texturePaths.size(),		// depth
 		0,							// border
 		GL_RGBA,					// format
 		GL_UNSIGNED_BYTE,			// type
@@ -156,13 +156,11 @@ extern "C" int main(int argc, char* argv[])
 		std::cerr << "OpenGL error: " << err << std::endl;
 	}
 
-	// for each texture path, load it and create an opengl reference for it
-	std::vector<unsigned char> texels = std::vector<unsigned char>();
+	// load each texture path into the opengl array texture
 	int layerNumber = 0;
-	for (std::map<std::string, std::string>::iterator iterator = texturePathsByName.begin(); iterator != texturePathsByName.end(); iterator++)
+	for (int i=0; i < texturePaths.size(); i++)
 	{
-		std::string textureName = iterator->first;
-		std::string texturePath = iterator->second;
+		std::string texturePath = texturePaths.at(i);
 
 		int imgWidth;
 		int imgHeight;
@@ -181,13 +179,6 @@ extern "C" int main(int argc, char* argv[])
 			continue;
 		}
 
-		// convert pixels to vector
-		//std::vector<unsigned char>::size_type size = strlen((const char*)pixels);
-		//std::vector<unsigned char> pixelsVec(pixels, pixels + size);
-
-		// store texture pixels in texels vector
-		//texels.insert(texels.end(), pixelsVec.begin(), pixelsVec.end());
-
 		// upload texture data
 		glTexSubImage3D(
 			GL_TEXTURE_2D_ARRAY,	// target
@@ -203,6 +194,7 @@ extern "C" int main(int argc, char* argv[])
 			pixels					// data
 		);
 
+		// check for errors
 		GLenum err;
 		while ((err = glGetError()) != GL_NO_ERROR) {
 			std::cerr << "OpenGL error: " << err << std::endl;
@@ -214,24 +206,12 @@ extern "C" int main(int argc, char* argv[])
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 
+		// target next texture
 		layerNumber++;
 	}	
 
 	// unbind texture
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-	// upload texture data to OpenGL
-	/*
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_RGB32F,
-		terrainMesh.TERRAIN_X,
-		terrainMesh.TERRAIN_Z,
-		0,
-		GL_RGB,
-		GL_FLOAT,
-		terrainMesh.heightMap.pixelData.data());
-		*/		
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	
 	//============================================================
 
 	//======================= SHADERS ============================
