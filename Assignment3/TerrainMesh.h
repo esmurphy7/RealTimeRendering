@@ -1,14 +1,12 @@
 #include <vector>
 #include "PerlinNoise.h"
+#include "SimplexNoise.h"
 #include "PPM_File.h"
 #include "HeightMap.h"
 
 class TerrainMesh
 {
 private:
-	const int MAX_TERRAIN_X = 100.0f;
-	const int MAX_TERRAIN_Z = 100.0f;
-	const int MAX_TERRAIN_HEIGHT = 100;	
 	float Y_POSITION;	
 	PerlinNoise perlinNoise;
 
@@ -42,50 +40,41 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 
 void TerrainMesh::generate()
 {
-	float fTerrainX, fTerrainZ;
-
 	// 1st pass: generate heightmap
 	std::vector<float> heights = std::vector<float>();
 	float largestHeight = 0;
-	fTerrainZ = -MAX_TERRAIN_Z / 2;
 	for (int z = 0; z < TERRAIN_Z; z++)
 	{
-		fTerrainX = -MAX_TERRAIN_X / 2;
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
-			//float height = 10.0*fBm(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ), 0, 1.0, 7);
-			float height = generatePerlinNoise(glm::vec3(fTerrainX, Y_POSITION, fTerrainZ));
+			//float height = 3.0*fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 7);
+			float height = 10.0*generatePerlinNoise(glm::vec3(float(x), Y_POSITION, float(z)));
+			//float height = 10.0*SimplexNoise().fractal(7, float(x), float(z));
 			if (height > largestHeight)
 			{
 				largestHeight = height;
 			}
 			heights.push_back(height);
-
-			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
 		}
-		fTerrainZ += (MAX_TERRAIN_Z / (TERRAIN_Z - 1));
 	}
 	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, heights);	
 	heightMap.saveToPPMFile("heightmap.ppm");
 
 	// 2nd pass: generate vertices, indices, normals, and texture coordinates
-	fTerrainX, fTerrainZ = 0;
-	fTerrainZ = -MAX_TERRAIN_Z / 2;
 	for (int z = 0; z < TERRAIN_Z; z++)
 	{
-		fTerrainX = -MAX_TERRAIN_X / 2;
 		for (int x = 0; x < TERRAIN_X; x++)
 		{			
 			// store texture coords
-			const int TILE_X = TERRAIN_X / 2;
-			const int TILE_Z = TERRAIN_Z / 2;
+			const int TILE_X = TERRAIN_X / 16;
+			const int TILE_Z = TERRAIN_Z / 16;
 			float texU = (float)x / (float)TILE_X;
 			float texV = (float)z / (float)TILE_Z;
 			textureCoords.push_back(texU);
 			textureCoords.push_back(texV);
 
 			// store vertex
-			glm::vec3 vertex = glm::vec3(fTerrainX, heightMap.getHeightAt(fTerrainX, fTerrainZ), fTerrainZ);
+			glm::vec3 vertex = glm::vec3(float(x), heightMap.getHeightAt(float(x), float(z)), float(z));
 			vertices.push_back(vertex.x);
 			vertices.push_back(vertex.y);
 			vertices.push_back(vertex.z);
@@ -105,56 +94,10 @@ void TerrainMesh::generate()
 				indices.push_back((x + 1) + z * TERRAIN_X);
 			}					
 
-			// generate normals
-			glm::vec3 normal;
-
-			// METHOD 1 ============================================
-			/*
-			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);			
-			float hL = heights.at(P.xy - offset.xz);
-			float hR = height(P.xy + offset.xz);
-			float hD = height(P.xy - offset.zy);
-			float hU = height(P.xy + offset.zy);
-			*/
-			
-			// get heights of left, right, up and down vertices
-			/*
-			glm::vec3 offset = glm::vec3(1.0, 1.0, 0.0);
-			float hL = heightMap.getHeightAt(vertex.x - offset.x, vertex.z - offset.z);
-			float hR = heightMap.getHeightAt(vertex.x + offset.x, vertex.z + offset.z);
-			float hD = heightMap.getHeightAt(vertex.x - offset.z, vertex.z - offset.y);
-			float hU = heightMap.getHeightAt(vertex.x + offset.z, vertex.z + offset.y);
-			
-			// compute and store normal			
-			normal.x = hL - hR;
-			normal.y = hD - hU;
-			normal.z = 2.0;
-			normal = normalize(normal);
-			*/
-			
-			// METHOD 2 ============================================
-			/*
-			nX = -(map.getHeight(vX + 1, vZ) - map.getHeight(vX - 1, vZ));
-            nZ = (map.getHeight(vX, vZ + 1) - map.getHeight(vX, vZ - 1));
-
-            normal = new Normal();
-            normal.x = nX * TerrainBlock.SCALE_VERTICAL;
-            normal.y = 2 * TerrainBlock.SCALE_HORIZONTAL;
-            normal.z = nZ * TerrainBlock.SCALE_VERTICAL;
-			*/
-
-			/*
-			float nX = -(heightMap.getHeightAt(vertex.x + 1, vertex.z) - heightMap.getHeightAt(vertex.x - 1, vertex.z));
-			float nZ = (heightMap.getHeightAt(vertex.x, vertex.z + 1) - heightMap.getHeightAt(vertex.x, vertex.z - 1));			
-
-			normal.x = nX;
-			normal.y = 2.0;
-			normal.z = nZ;
-			*/
-
-			// METHOD 3 ============================================
-			
+			// generate normals by averaging neighboring heights
+			glm::vec3 normal;			
 			float offset = 1.0;
+
 			float hL = heightMap.getHeightAt(vertex.x - offset, vertex.z);
 			float hR = heightMap.getHeightAt(vertex.x + offset, vertex.z);
 			float hD = heightMap.getHeightAt(vertex.x, vertex.z - offset);
@@ -165,14 +108,10 @@ void TerrainMesh::generate()
 			normal.y = 2.0;
 			normal = normalize(normal);
 
-
 			normals.push_back(normal.x);
 			normals.push_back(normal.y);
 			normals.push_back(normal.z);
-
-			fTerrainX += (MAX_TERRAIN_X / (TERRAIN_X - 1));
 		}
-		fTerrainZ += (MAX_TERRAIN_Z / (TERRAIN_Z - 1));
 	}	
 }
 

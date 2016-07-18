@@ -23,7 +23,7 @@ void main()
 		{
 			// grass texture
 			TargetTextureId = 1;
-			if(vertexPosition_modelspace.y > 10)
+			if(vertexPosition_modelspace.y > 9)
 			{
 				// snow texture
 				TargetTextureId = 2;
