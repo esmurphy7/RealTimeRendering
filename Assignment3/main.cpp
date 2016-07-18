@@ -127,7 +127,7 @@ extern "C" int main(int argc, char* argv[])
 	// map names of textures to their paths	
 	std::map<std::string, std::string> texturePathsByName = {
 		{"SandTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga"},		
-		//{"SnowTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga"},
+		{"SnowTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga"},
 		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},
 		//{"GrassTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"}
 	};
@@ -135,6 +135,7 @@ extern "C" int main(int argc, char* argv[])
 	// generate and bind texture object
 	GLuint textureArrayId;
 	glGenTextures(1, &textureArrayId);
+	//glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 
 	glTexImage3D(
@@ -150,9 +151,13 @@ extern "C" int main(int argc, char* argv[])
 		NULL						// data
 	);
 
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cerr << "OpenGL error: " << err << std::endl;
+	}
+
 	// for each texture path, load it and create an opengl reference for it
 	std::vector<unsigned char> texels = std::vector<unsigned char>();
-	int i = 0;
 	int layerNumber = 0;
 	for (std::map<std::string, std::string>::iterator iterator = texturePathsByName.begin(); iterator != texturePathsByName.end(); iterator++)
 	{
@@ -186,29 +191,34 @@ extern "C" int main(int argc, char* argv[])
 		// upload texture data
 		glTexSubImage3D(
 			GL_TEXTURE_2D_ARRAY,	// target
-			layerNumber,			// level
+			0,						// level
 			0,						// xoffset
 			0,						// yoffset 
-			0,						// zoffset
-			TextureWidth,			// width
-			TextureHeight,			// height
+			layerNumber,			// zoffset
+			imgWidth,				// width
+			imgHeight,				// height
 			1, 						// depth
 			GL_RGBA,				// format
 			GL_UNSIGNED_BYTE,		// type
 			pixels					// data
 		);
 
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR) {
+			std::cerr << "OpenGL error: " << err << std::endl;
+		}
+
 		// set filtering parameters
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		// unbind texture
-		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 
 		layerNumber++;
 	}	
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	// upload texture data to OpenGL
 	/*
