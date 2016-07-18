@@ -127,19 +127,31 @@ extern "C" int main(int argc, char* argv[])
 	// map names of textures to their paths	
 	std::map<std::string, std::string> texturePathsByName = {
 		{"SandTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga"},		
-		{"SnowTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga"},
-		{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},
-		{"GrassTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"}
+		//{"SnowTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga"},
+		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},
+		//{"GrassTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga"}
 	};
 
 	// generate and bind texture object
 	GLuint textureArrayId;
 	glGenTextures(1, &textureArrayId);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, TextureWidth, TextureHeight, texturePathsByName.size());
+
+	glTexImage3D(
+		GL_TEXTURE_2D_ARRAY,		// target
+		0,							// level			
+		GL_RGBA8,					// internal format		
+		TextureWidth,				// width
+		TextureHeight,				// height
+		texturePathsByName.size(),  // depth
+		0,							// border
+		GL_RGBA,					// format
+		GL_UNSIGNED_BYTE,			// type
+		NULL						// data
+	);
 
 	// for each texture path, load it and create an opengl reference for it
-	unsigned char texels[TextureWidth * TextureHeight * 6];
+	std::vector<unsigned char> texels = std::vector<unsigned char>();
 	int i = 0;
 	int layerNumber = 0;
 	for (std::map<std::string, std::string>::iterator iterator = texturePathsByName.begin(); iterator != texturePathsByName.end(); iterator++)
@@ -164,28 +176,27 @@ extern "C" int main(int argc, char* argv[])
 			continue;
 		}
 
-		// move pixels into 2d texel array
-		unsigned char pixel = *pixels;
-		while (pixel != NULL)
-		{
-			texels[i] = pixel;
-			pixel = *(pixels++);
-			i++;
-		}				
+		// convert pixels to vector
+		//std::vector<unsigned char>::size_type size = strlen((const char*)pixels);
+		//std::vector<unsigned char> pixelsVec(pixels, pixels + size);
+
+		// store texture pixels in texels vector
+		//texels.insert(texels.end(), pixelsVec.begin(), pixelsVec.end());
 
 		// upload texture data
 		glTexSubImage3D(
-			GL_TEXTURE_2D_ARRAY, 
-			0, 
-			0, 
-			0, 
-			layerNumber, 
-			TextureWidth, 
-			TextureHeight, 
-			texturePathsByName.size(), 
-			GL_RGBA, 
-			GL_UNSIGNED_BYTE, 
-			texels);
+			GL_TEXTURE_2D_ARRAY,	// target
+			layerNumber,			// level
+			0,						// xoffset
+			0,						// yoffset 
+			0,						// zoffset
+			TextureWidth,			// width
+			TextureHeight,			// height
+			1, 						// depth
+			GL_RGBA,				// format
+			GL_UNSIGNED_BYTE,		// type
+			pixels					// data
+		);
 
 		// set filtering parameters
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -224,7 +235,7 @@ extern "C" int main(int argc, char* argv[])
 		"uniform mat4 iModel;\n"
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
-		"uniform 2DArraySampler iTextureArray;\n"
+		"uniform sampler2DArray iTextureArray;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
