@@ -41,7 +41,7 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 void TerrainMesh::generate()
 {	
 	// 1st pass: generate heightmap
-	SimplexNoise simplexNoise = SimplexNoise(1.0, 100.0);
+	SimplexNoise simplexNoise = SimplexNoise(1.0, 10.0);
 	std::vector<float> heights = std::vector<float>();
 	float largestHeight = 0;
 	for (int z = 0; z < TERRAIN_Z; z++)

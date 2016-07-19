@@ -2,6 +2,7 @@
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
+layout(location = 3) in float vertexHeight_worldspace;
   
 // Output data ; will be interpolated for each fragment.
 out vec2 UV;
@@ -12,18 +13,18 @@ out vec3 LightDirection_cameraspace;
 out flat int TargetTextureId;
 
 void main()
-{
+{	
 	// determine texture to sample based on height and steepness of vertex
 	TargetTextureId = 0;
-	if(vertexPosition_modelspace.y > 0.5)
+	if(vertexHeight_worldspace > 0.5)
 	{
 		// sand texture
 		TargetTextureId = 0;
-		if(vertexPosition_modelspace.y > 1)
+		if(vertexHeight_worldspace > 1)
 		{
 			// grass texture
 			TargetTextureId = 1;
-			if(vertexPosition_modelspace.y > 1.5)
+			if(vertexHeight_worldspace > 1.5)
 			{
 				// snow texture
 				TargetTextureId = 2;
@@ -42,7 +43,8 @@ void main()
 	
 	// Position of the vertex, in worldspace : M * position
 	Position_worldspace = (iModel * vec4(vertexPosition_modelspace,1)).xyz;
-	
+	Position_worldspace.y *= vertexHeight_worldspace;
+
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).
 	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(vertexPosition_modelspace,1)).xyz;
