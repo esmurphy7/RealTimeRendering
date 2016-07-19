@@ -6,8 +6,7 @@
 class HeightMap
 {
 private:
-	glm::vec3			baseColor = glm::vec3(1.0, 0.0, 0.0);
-	std::vector<float>	heights = std::vector<float>();
+	glm::vec3			baseColor = glm::vec3(1.0, 0.0, 0.0);	
 	float				largestHeight = 0.0;
 
 	void findLargestHeight();
@@ -15,6 +14,7 @@ private:
 
 public:
 	unsigned int		WIDTH, HEIGHT;
+	std::vector<float>	heights = std::vector<float>();
 	std::vector<float>	pixelData = std::vector<float>();
 
 	HeightMap();

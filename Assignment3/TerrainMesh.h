@@ -41,7 +41,7 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 void TerrainMesh::generate()
 {	
 	// 1st pass: generate heightmap
-	SimplexNoise simplexNoise = SimplexNoise(1.0, 1.0);
+	SimplexNoise simplexNoise = SimplexNoise(1.0, 100.0);
 	std::vector<float> heights = std::vector<float>();
 	float largestHeight = 0;
 	for (int z = 0; z < TERRAIN_Z; z++)
@@ -75,7 +75,8 @@ void TerrainMesh::generate()
 			textureCoords.push_back(texV);
 
 			// store vertex
-			glm::vec3 vertex = glm::vec3(float(x), heightMap.getHeightAt(float(x), float(z)), float(z));
+			//glm::vec3 vertex = glm::vec3(float(x), heightMap.getHeightAt(float(x), float(z)), float(z));
+			glm::vec3 vertex = glm::vec3(float(x), Y_POSITION, float(z));
 			vertices.push_back(vertex.x);
 			vertices.push_back(vertex.y);
 			vertices.push_back(vertex.z);

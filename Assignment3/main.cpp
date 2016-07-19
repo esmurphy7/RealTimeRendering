@@ -118,6 +118,23 @@ extern "C" int main(int argc, char* argv[])
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * terrainMesh.indices.size(), NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * terrainMesh.indices.size(), &terrainMesh.indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// initialize heightmap VBO
+	GLuint heightmapVBO = 0;
+	if (!terrainMesh.heightMap.heights.empty())
+	{
+		glGenBuffers(1, &heightmapVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.heightMap.heights.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.heightMap.heights.size(), &terrainMesh.heightMap.heights[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	// check for errors
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cerr << "OpenGL error: " << err << std::endl;
+	}
 	//============================================================
 
 	//===================== TEXTURES =============================
@@ -150,11 +167,6 @@ extern "C" int main(int argc, char* argv[])
 		GL_UNSIGNED_BYTE,			// type
 		NULL						// data
 	);
-
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR) {
-		std::cerr << "OpenGL error: " << err << std::endl;
-	}
 
 	// load each texture path into the opengl array texture
 	int layerNumber = 0;
@@ -235,13 +247,13 @@ extern "C" int main(int argc, char* argv[])
 	//======================== LIGHTS ============================
 	glm::vec3 light = glm::vec3(4, 40, 4);
 	//============================================================
-
+	
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
 	Camera camera = Camera(4, 40, 4);
     while (1)
-    {	
+    {			
 		//================= UPDATE USER INPUT ========================
 		double currentTime = SDL_GetTicks() / 1000.0;		
 		float deltaTime = float(currentTime - lastTime);
@@ -371,7 +383,7 @@ extern "C" int main(int argc, char* argv[])
 			glEnableVertexAttribArray(1);
 
 			glBindVertexArray(0);
-		}
+		}		
 
 		// Attach normal buffer as attribute 2
 		if (normalVBO != 0)
@@ -388,7 +400,7 @@ extern "C" int main(int argc, char* argv[])
 			glEnableVertexAttribArray(2);
 
 			glBindVertexArray(0);
-		}
+		}		
 
 		// attach the index EBO to the mesh VAO
 		if (indicesEBO != 0)
@@ -400,11 +412,22 @@ extern "C" int main(int argc, char* argv[])
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
 
 			glBindVertexArray(0);
+		}		
+
+		// attach the heightmap VBO to the mesh VAO
+		if (heightmapVBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
+			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glEnableVertexAttribArray(3);
+			glBindVertexArray(0);
 		}
 
 		// Can now bind the vertex array object to the graphics pipeline, to render with it.
 		// For example:
-		glBindVertexArray(meshVAO);
+		glBindVertexArray(meshVAO);		
 		//============================================================	
 
 		// draw wireframe of mesh
