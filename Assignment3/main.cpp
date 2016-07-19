@@ -164,7 +164,7 @@ extern "C" int main(int argc, char* argv[])
 
 		int imgWidth;
 		int imgHeight;
-		int nColorDepth;	
+		int nColorDepth;
 
 		// load the texture file
 		unsigned char* pixels = stbi_load(texturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
@@ -209,6 +209,39 @@ extern "C" int main(int argc, char* argv[])
 		// target next texture
 		layerNumber++;
 	}	
+
+	// format the heightmap in rgba to prepare to upload
+	std::vector<float> heightMapRGBAData = std::vector<float>();
+	for (int i = 0; i < terrainMesh.heightMap.rgbData.size(); i++)
+	{
+		glm::vec3 color = terrainMesh.heightMap.rgbData.at(i);
+		heightMapRGBAData.push_back(color.r);
+		heightMapRGBAData.push_back(color.g);
+		heightMapRGBAData.push_back(color.b);
+		heightMapRGBAData.push_back(1.0);
+	}
+
+	// upload heightmap as texture
+	glTexSubImage3D(
+		GL_TEXTURE_2D_ARRAY,	// target
+		0,						// level
+		0,						// xoffset
+		0,						// yoffset 
+		texturePaths.size()+1,	// zoffset
+		terrainMesh.heightMap.WIDTH,				// width
+		terrainMesh.heightMap.WIDTH,				// height
+		1, 						// depth
+		GL_RGBA,				// format
+		GL_UNSIGNED_BYTE,		// type
+		heightMapRGBAData.data()			// data
+	);
+
+	// set filtering parameters
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
 
 	// unbind texture
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	
