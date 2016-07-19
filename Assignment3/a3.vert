@@ -15,15 +15,15 @@ void main()
 {
 	// determine texture to sample based on height and steepness of vertex
 	TargetTextureId = 0;
-	if(vertexPosition_modelspace.y > 3)
+	if(vertexPosition_modelspace.y > 0.5)
 	{
 		// sand texture
 		TargetTextureId = 0;
-		if(vertexPosition_modelspace.y > 5)
+		if(vertexPosition_modelspace.y > 1)
 		{
 			// grass texture
 			TargetTextureId = 1;
-			if(vertexPosition_modelspace.y > 9)
+			if(vertexPosition_modelspace.y > 1.5)
 			{
 				// snow texture
 				TargetTextureId = 2;

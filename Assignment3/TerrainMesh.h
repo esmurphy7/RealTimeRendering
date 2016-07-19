@@ -39,17 +39,18 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 }
 
 void TerrainMesh::generate()
-{
+{	
 	// 1st pass: generate heightmap
+	SimplexNoise simplexNoise = SimplexNoise(1.0, 1.0);
 	std::vector<float> heights = std::vector<float>();
 	float largestHeight = 0;
 	for (int z = 0; z < TERRAIN_Z; z++)
 	{
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
-			//float height = 3.0*fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 7);
-			float height = 10.0*generatePerlinNoise(glm::vec3(float(x), Y_POSITION, float(z)));
-			//float height = 10.0*SimplexNoise().fractal(7, float(x), float(z));
+			//float height = fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 7);
+			//float height = 10.0*generatePerlinNoise(glm::vec3(float(x), Y_POSITION, float(z)));
+			float height = simplexNoise.fractal(3, float(x), float(z));
 			if (height > largestHeight)
 			{
 				largestHeight = height;
@@ -66,8 +67,8 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{			
 			// store texture coords
-			const int TILE_X = TERRAIN_X / 16;
-			const int TILE_Z = TERRAIN_Z / 16;
+			const int TILE_X = TERRAIN_X / 64;
+			const int TILE_Z = TERRAIN_Z / 64;
 			float texU = (float)x / (float)TILE_X;
 			float texV = (float)z / (float)TILE_Z;
 			textureCoords.push_back(texU);
