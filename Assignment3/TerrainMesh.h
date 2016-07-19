@@ -7,11 +7,7 @@
 class TerrainMesh
 {
 private:
-	float Y_POSITION;	
-	PerlinNoise perlinNoise;
-
-	float generatePerlinNoise(glm::vec3);
-	float fBm(glm::vec3 point, float H, float lacunarity, int octaves);
+	float Y_POSITION;
 
 public:
 	int TERRAIN_X, TERRAIN_Z;
@@ -22,16 +18,15 @@ public:
 	std::vector<float>			normals;
 	std::vector<float>			textureCoords;
 
-	TerrainMesh(int, int, float, int);
+	TerrainMesh(int, int, float);
 	void generate();
 };
 
-TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
+TerrainMesh::TerrainMesh(int width, int height, float yPos)
 {
 	TERRAIN_X = width;
 	TERRAIN_Z = height;
 	Y_POSITION = yPos;
-	perlinNoise = PerlinNoise(seed);
 	vertices = std::vector<float>();
 	indices = std::vector<unsigned int>();
 	normals = std::vector<float>();
@@ -41,7 +36,7 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 void TerrainMesh::generate()
 {	
 	// generate heightmap
-	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z);	
+	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, 7);	
 	heightMap.saveToPPMFile("heightmap.ppm");
 
 	// generate vertices, indices, normals, and texture coordinates
@@ -97,63 +92,5 @@ void TerrainMesh::generate()
 			normals.push_back(normal.z);
 		}
 	}	
-}
-
-/*
-*  Perlin noise basis function
-*/
-float TerrainMesh::generatePerlinNoise(glm::vec3 point)
-{
-	float r = perlinNoise.noise(point.x, point.z, 0.8);
-	return r;
-}
-
-/*
-* Procedural fBm evaluated at "point"; returns value stored in "value".
-*
-* Parameters:
-* "H" is the fractal increment
-* "lacunarity" is the gap between successive frequencies
-* "octaves" is the number of frequencies in the fBm
-*/
-float TerrainMesh::fBm(glm::vec3 point, float H, float lacunarity, int octaves)
-{
-	float value, frequency, remainder;
-	int i;
-	bool first = true;
-	const int MAX_OCTAVES = 10;
-	std::vector<float> exponent_array = std::vector<float>();
-
-	/* precompute and store spectral weights */
-	if (first) 
-	{
-		frequency = 1.0;
-		for (i = 0; i<MAX_OCTAVES; i++)
-		{
-			/* compute weight for each frequency */
-			exponent_array.push_back(pow(frequency, -H));
-			frequency *= lacunarity;
-		}
-		first = false;
-	}
-
-	value = 0.0;
-	/* inner loop of spectral construction */
-	for (i = 0; i<octaves; i++) 
-	{
-		float noise = generatePerlinNoise(point);
-		value += noise *exponent_array.at(i);
-		point.x *= lacunarity;
-		point.y *= lacunarity;
-		point.z *= lacunarity;
-	} 
-	
-	remainder = octaves - (int)octaves;
-	if (remainder) /* add in "octaves" remainder */
-	{
-		/* "i" and spatial freq. are preset in loop above */
-		value += remainder * generatePerlinNoise(point) * exponent_array[i];
-	}
-	return(value);
 }
 

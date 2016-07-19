@@ -78,7 +78,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0, 7);
+	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -240,8 +240,7 @@ extern "C" int main(int argc, char* argv[])
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 
 	// unbind texture
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	

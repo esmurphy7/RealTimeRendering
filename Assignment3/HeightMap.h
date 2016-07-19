@@ -7,6 +7,7 @@
 class HeightMap
 {
 private:
+	PerlinNoise perlinNoise;
 	glm::vec3 baseColor = glm::vec3(1.0, 0.0, 0.0);
 	float largestHeight = 0.0;
 
@@ -17,7 +18,7 @@ public:
 	std::vector<glm::vec3>	rgbData = std::vector<glm::vec3>();
 
 	HeightMap();
-	HeightMap(unsigned int width, unsigned int height);
+	HeightMap(unsigned int width, unsigned int height, unsigned int noiseSeed);
 
 	float getHeightAt(glm::vec2 point);
 	float getHeightAt(int x, int y);
@@ -30,22 +31,24 @@ HeightMap::HeightMap()
 
 }
 
-HeightMap::HeightMap(unsigned int width, unsigned int height)
+HeightMap::HeightMap(unsigned int width, unsigned int height, unsigned int seed)
 {
 	WIDTH = width;
 	HEIGHT = height;
+	perlinNoise = PerlinNoise(seed);
 	generate();
 }
 
 void HeightMap::generate()
-{
-	SimplexNoise simplexNoise = SimplexNoise(1.0, 1.0);
+{	
+	SimplexNoise simplexNoise = SimplexNoise(1.0, 100.0);
 	for (int z = 0; z < HEIGHT; z++)
 	{
 		for (int x = 0; x < WIDTH; x++)
 		{
 			// generate color and store as texture data
 			float R = simplexNoise.fractal(3, float(x), float(z));
+			//float R = 1000.0*perlinNoise.noise(float(x), float(z), 0.8);
 			rgbData.push_back(glm::vec3(R, baseColor.g, baseColor.b));
 		}
 	}
