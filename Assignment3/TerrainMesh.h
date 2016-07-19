@@ -40,28 +40,11 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos, int seed)
 
 void TerrainMesh::generate()
 {	
-	// 1st pass: generate heightmap
-	SimplexNoise simplexNoise = SimplexNoise(1.0, 1.0);
-	std::vector<float> heights = std::vector<float>();
-	float largestHeight = 0;
-	for (int z = 0; z < TERRAIN_Z; z++)
-	{
-		for (int x = 0; x < TERRAIN_X; x++)
-		{
-			//float height = fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 7);
-			//float height = 10.0*generatePerlinNoise(glm::vec3(float(x), Y_POSITION, float(z)));
-			float height = simplexNoise.fractal(3, float(x), float(z));
-			if (height > largestHeight)
-			{
-				largestHeight = height;
-			}
-			heights.push_back(height);
-		}
-	}
-	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, heights);	
+	// generate heightmap
+	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z);	
 	heightMap.saveToPPMFile("heightmap.ppm");
 
-	// 2nd pass: generate vertices, indices, normals, and texture coordinates
+	// generate vertices, indices, normals, and texture coordinates
 	for (int z = 0; z < TERRAIN_Z; z++)
 	{
 		for (int x = 0; x < TERRAIN_X; x++)
@@ -75,7 +58,7 @@ void TerrainMesh::generate()
 			textureCoords.push_back(texV);
 
 			// store vertex
-			glm::vec3 vertex = glm::vec3(float(x), heightMap.getHeightAt(float(x), float(z)), float(z));
+			glm::vec3 vertex = glm::vec3(float(x), Y_POSITION, float(z));
 			vertices.push_back(vertex.x);
 			vertices.push_back(vertex.y);
 			vertices.push_back(vertex.z);
