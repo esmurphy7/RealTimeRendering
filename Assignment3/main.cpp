@@ -229,7 +229,7 @@ extern "C" int main(int argc, char* argv[])
 		0,						// yoffset 
 		texturePaths.size()+1,	// zoffset
 		terrainMesh.heightMap.WIDTH,				// width
-		terrainMesh.heightMap.WIDTH,				// height
+		terrainMesh.heightMap.HEIGHT,				// height
 		1, 						// depth
 		GL_RGBA,				// format
 		GL_UNSIGNED_BYTE,		// type
