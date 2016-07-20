@@ -34,20 +34,22 @@ void main()
 
 	// Output position of the vertex, in clip space : MVP * position
 	 // Offset the y position by the value of current texel's colour value ?
-	vec4 textureColor = texture(iTextureArray, vec3(vertexUV, TargetTextureId));
+	//vec4 textureColor = texture(iTextureArray, vec3(vertexUV, TargetTextureId));
+
+	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
+	displacedPositionModelSpace.y += vertexHeight_worldspace;
 
 	// offset the height (y-position) of the vertex based on the texture's R color
-    vec4 offset = vec4(vertexPosition_modelspace.x, textureColor.r, vertexPosition_modelspace.z, 1.0);
-	gl_Position =  iModelViewProjection * offset;
-	//gl_Position =  iModelViewProjection * vec4(vertexPosition_modelspace, 1);
-	
+    //vec4 offset = vec4(vertexPosition_modelspace.x, vertexHeight_worldspace, vertexPosition_modelspace.z, 1.0);
+	//gl_Position =  iModelViewProjection * offset;
+	gl_Position =  iModelViewProjection * vec4(displacedPositionModelSpace, 1);	
+
 	// Position of the vertex, in worldspace : M * position
-	Position_worldspace = (iModel * vec4(vertexPosition_modelspace,1)).xyz;
-	Position_worldspace.y *= vertexHeight_worldspace;
+	Position_worldspace = (iModel * vec4(displacedPositionModelSpace,1)).xyz;	
 
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).
-	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(vertexPosition_modelspace,1)).xyz;
+	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(displacedPositionModelSpace,1)).xyz;
 	EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 	// Vector that goes from the vertex to the light, in camera space. M is ommited because it's identity.

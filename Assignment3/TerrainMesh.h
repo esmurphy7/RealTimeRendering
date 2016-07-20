@@ -48,9 +48,9 @@ void TerrainMesh::generate()
 	{
 		for (int x = 0; x < TERRAIN_X; x++)
 		{
-			//float height = fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 7);
+			float height = 2.0*fBm(glm::vec3(float(x), Y_POSITION, float(z)), 0, 1.0, 3);
 			//float height = 10.0*generatePerlinNoise(glm::vec3(float(x), Y_POSITION, float(z)));
-			float height = simplexNoise.fractal(3, float(x), float(z));
+			//float height = simplexNoise.fractal(3, float(x), float(z));
 			if (height > largestHeight)
 			{
 				largestHeight = height;
