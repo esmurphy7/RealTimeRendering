@@ -37,7 +37,8 @@ void TerrainMesh::generate()
 {	
 	// generate heightmap
 	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, 7);	
-	heightMap.saveToPPMFile("heightmap.ppm");
+	//heightMap.saveToPPMFile("heightmap.ppm");
+	heightMap.saveToPNGFile("heightmap.png");
 
 	// generate vertices, indices, normals, and texture coordinates
 	for (int z = 0; z < TERRAIN_Z; z++)
@@ -45,8 +46,8 @@ void TerrainMesh::generate()
 		for (int x = 0; x < TERRAIN_X; x++)
 		{			
 			// store texture coords
-			const int TILE_X = TERRAIN_X / 64;
-			const int TILE_Z = TERRAIN_Z / 64;
+			const int TILE_X = TERRAIN_X;
+			const int TILE_Z = TERRAIN_Z;
 			float texU = (float)x / (float)TILE_X;
 			float texV = (float)z / (float)TILE_Z;
 			textureCoords.push_back(texU);

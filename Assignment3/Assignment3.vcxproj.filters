@@ -19,6 +19,7 @@
     <ClInclude Include="PPM_File.h" />
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="SimplexNoise.h" />
+    <ClInclude Include="stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />

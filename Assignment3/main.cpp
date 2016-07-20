@@ -129,6 +129,7 @@ extern "C" int main(int argc, char* argv[])
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",		
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
+		//"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\heightmap.png",
 		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},		
 	};
 
@@ -210,37 +211,34 @@ extern "C" int main(int argc, char* argv[])
 		layerNumber++;
 	}	
 
-	// format the heightmap in rgba to prepare to upload
-	std::vector<float> heightMapRGBAData = std::vector<float>();
-	for (int i = 0; i < terrainMesh.heightMap.rgbData.size(); i++)
-	{
-		glm::vec3 color = terrainMesh.heightMap.rgbData.at(i);
-		heightMapRGBAData.push_back(color.r);
-		heightMapRGBAData.push_back(color.g);
-		heightMapRGBAData.push_back(color.b);
-		heightMapRGBAData.push_back(1.0);
+	// upload heightmap as a separate texture
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	std::vector<float> rgbaData = terrainMesh.heightMap.getRGBDataAsFloatVector(true);
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA32F,
+		terrainMesh.heightMap.WIDTH,
+		terrainMesh.heightMap.HEIGHT,
+		0,
+		GL_RGBA,
+		GL_FLOAT,
+		rgbaData.data());
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLenum err2;
+	while ((err2 = glGetError()) != GL_NO_ERROR) {
+		std::cerr << "OpenGL error: " << err2 << std::endl;
 	}
-
-	// upload heightmap as texture
-	glTexSubImage3D(
-		GL_TEXTURE_2D_ARRAY,	// target
-		0,						// level
-		0,						// xoffset
-		0,						// yoffset 
-		texturePaths.size()+1,	// zoffset
-		terrainMesh.heightMap.WIDTH,				// width
-		terrainMesh.heightMap.HEIGHT,				// height
-		1, 						// depth
-		GL_RGBA,				// format
-		GL_UNSIGNED_BYTE,		// type
-		heightMapRGBAData.data()			// data
-	);
-
-	// set filtering parameters
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 
 	// unbind texture
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	
@@ -258,6 +256,7 @@ extern "C" int main(int argc, char* argv[])
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
 		"uniform sampler2DArray iTextureArray;\n"
+		"uniform sampler2D iHeightMapTextureSampler;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -351,6 +350,15 @@ extern "C" int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 			glUniform1i(iTextureArraySamplerLoc, 0);
 		}		
+
+		// generate separate uniform for heightmap texture
+		GLuint iHeightMapTextureSamplerLoc = glGetUniformLocation(*shaderId, "iHeightMapTextureSampler");
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		if (iHeightMapTextureSamplerLoc != -1)
+		{
+			glUniform1i(iHeightMapTextureSamplerLoc, 1);
+		}
 
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*shaderId);
