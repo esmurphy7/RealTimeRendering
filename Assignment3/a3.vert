@@ -2,6 +2,7 @@
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
+layout(location = 3) in vec2 heightMapUV;
   
 // Output data ; will be interpolated for each fragment.
 out vec2 UV;
@@ -31,22 +32,23 @@ void main()
 		}
 	}
 
-	// Output position of the vertex, in clip space : MVP * position
-	 // Offset the y position by the value of heightmap's red value
-	//vec4 textureColor = texture(iTextureArray, vec3(vertexUV, 3));
-	vec4 textureColor = texture(iHeightMapTextureSampler, vertexUV);
+	// determine value to displace vertex by sampling heightmap
+	float yDisplacement = 20.0*texture(iHeightMapTextureSampler, heightMapUV).r;
 
 	// offset the height (y-position) of the vertex based on the texture's R color
-    vec4 offset = vec4(vertexPosition_modelspace.x, 10.0*textureColor.r, vertexPosition_modelspace.z, 1.0);
+    vec4 offset = vec4(vertexPosition_modelspace.x, yDisplacement, vertexPosition_modelspace.z, 1.0);
 	gl_Position =  iModelViewProjection * offset;
-	//gl_Position =  iModelViewProjection * vec4(vertexPosition_modelspace, 1);
 	
+	// displace the vertex's model space
+	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
+	displacedPositionModelSpace.y += yDisplacement;
+
 	// Position of the vertex, in worldspace : M * position
-	Position_worldspace = (iModel * vec4(vertexPosition_modelspace,1)).xyz;
+	Position_worldspace = (iModel * vec4(displacedPositionModelSpace, 1)).xyz;
 	
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).
-	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(vertexPosition_modelspace,1)).xyz;
+	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(displacedPositionModelSpace,1)).xyz;
 	EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 	// Vector that goes from the vertex to the light, in camera space. M is ommited because it's identity.

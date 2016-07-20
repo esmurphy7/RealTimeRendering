@@ -89,7 +89,7 @@ extern "C" int main(int argc, char* argv[])
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)* terrainMesh.vertices.size(), &terrainMesh.vertices[0]);	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// initialize UVcoords VBO	
+	// initialize texture UVcoords VBO	
 	GLuint texcoordVBO = 0;
 	if (!terrainMesh.textureCoords.empty())
 	{
@@ -98,7 +98,7 @@ extern "C" int main(int argc, char* argv[])
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.textureCoords.size(), NULL, GL_STATIC_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.textureCoords.size(), &terrainMesh.textureCoords[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+	}	
 
 	// initialize normals VBO	
 	GLuint normalVBO = 0;
@@ -118,6 +118,17 @@ extern "C" int main(int argc, char* argv[])
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * terrainMesh.indices.size(), NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * terrainMesh.indices.size(), &terrainMesh.indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// initialize heightmap UVcoords VBO	
+	GLuint heightmapCoordVBO = 0;
+	if (!terrainMesh.heightMapCoords.empty())
+	{
+		glGenBuffers(1, &heightmapCoordVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, heightmapCoordVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.heightMapCoords.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.heightMapCoords.size(), &terrainMesh.heightMapCoords[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 	//============================================================
 
 	//===================== TEXTURES =============================
@@ -411,7 +422,7 @@ extern "C" int main(int argc, char* argv[])
 			glEnableVertexAttribArray(1);
 
 			glBindVertexArray(0);
-		}
+		}		
 
 		// Attach normal buffer as attribute 2
 		if (normalVBO != 0)
@@ -438,6 +449,23 @@ extern "C" int main(int argc, char* argv[])
 			// Note: Calling glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); when a VAO is bound attaches the index buffer to the VAO.
 			// From an API design perspective, this is subtle.
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
+
+			glBindVertexArray(0);
+		}
+
+		// Attach heightmapcoord buffer as attribute 3
+		if (heightmapCoordVBO != 0)
+		{
+			glBindVertexArray(meshVAO);
+
+			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
+			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
+			glBindBuffer(GL_ARRAY_BUFFER, heightmapCoordVBO);
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
+			glEnableVertexAttribArray(3);
 
 			glBindVertexArray(0);
 		}
