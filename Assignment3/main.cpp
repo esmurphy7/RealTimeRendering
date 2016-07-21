@@ -121,7 +121,7 @@ extern "C" int main(int argc, char* argv[])
 
 	// initialize heightmap VBO
 	GLuint heightmapVBO = 0;
-	std::vector<float> RGBHeightMap = terrainMesh.heightMap.getRGBDataAsFloatVector(false);
+	std::vector<float> RGBHeightMap = terrainMesh.heightMap.getAsFloatVector(GL_RED);
 	if (!RGBHeightMap.empty())
 	{
 		glGenBuffers(1, &heightmapVBO);
@@ -420,7 +420,7 @@ extern "C" int main(int argc, char* argv[])
 		{
 			glBindVertexArray(meshVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
-			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glEnableVertexAttribArray(3);
 			glBindVertexArray(0);
