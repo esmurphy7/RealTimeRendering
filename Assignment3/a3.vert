@@ -2,7 +2,7 @@
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
-layout(location = 3) in vec2 heightMapUV;
+layout(location = 3) in vec3 RGBHeight;
   
 // Output data ; will be interpolated for each fragment.
 out vec2 UV;
@@ -13,18 +13,20 @@ out vec3 LightDirection_cameraspace;
 out flat int TargetTextureId;
 
 void main()
-{
+{	
+	float vertexHeight_worldspace = RGBHeight.r;
+	
 	// determine texture to sample based on height and steepness of vertex
 	TargetTextureId = 0;
-	if(vertexPosition_modelspace.y > 0.5)
+	if(vertexHeight_worldspace > 0.5)
 	{
 		// sand texture
 		TargetTextureId = 0;
-		if(vertexPosition_modelspace.y > 1)
+		if(vertexHeight_worldspace > 1)
 		{
 			// grass texture
 			TargetTextureId = 1;
-			if(vertexPosition_modelspace.y > 1.5)
+			if(vertexHeight_worldspace > 1.5)
 			{
 				// snow texture
 				TargetTextureId = 2;
@@ -32,20 +34,21 @@ void main()
 		}
 	}
 
-	// determine value to displace vertex by sampling heightmap
-	float yDisplacement = 20.0*texture(iHeightMapTextureSampler, heightMapUV).r;
+	// Output position of the vertex, in clip space : MVP * position
+	 // Offset the y position by the value of current texel's colour value ?
+	//vec4 textureColor = texture(iTextureArray, vec3(vertexUV, TargetTextureId));
+
+	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
+	displacedPositionModelSpace.y += vertexHeight_worldspace;
 
 	// offset the height (y-position) of the vertex based on the texture's R color
-    vec4 offset = vec4(vertexPosition_modelspace.x, yDisplacement, vertexPosition_modelspace.z, 1.0);
-	gl_Position =  iModelViewProjection * offset;
-	
-	// displace the vertex's model space
-	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
-	displacedPositionModelSpace.y += yDisplacement;
+    //vec4 offset = vec4(vertexPosition_modelspace.x, vertexHeight_worldspace, vertexPosition_modelspace.z, 1.0);
+	//gl_Position =  iModelViewProjection * offset;
+	gl_Position =  iModelViewProjection * vec4(displacedPositionModelSpace, 1);	
 
 	// Position of the vertex, in worldspace : M * position
-	Position_worldspace = (iModel * vec4(displacedPositionModelSpace, 1)).xyz;
-	
+	Position_worldspace = (iModel * vec4(displacedPositionModelSpace,1)).xyz;	
+
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).
 	vec3 vertexPosition_cameraspace = ( iView * iModel * vec4(displacedPositionModelSpace,1)).xyz;

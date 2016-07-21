@@ -17,7 +17,6 @@ public:
 	std::vector<unsigned int>	indices;
 	std::vector<float>			normals;
 	std::vector<float>			textureCoords;
-	std::vector<float>			heightMapCoords;
 
 	TerrainMesh(int, int, float);
 	void generate();
@@ -32,7 +31,6 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos)
 	indices = std::vector<unsigned int>();
 	normals = std::vector<float>();
 	textureCoords = std::vector<float>();
-	heightMapCoords = std::vector<float>();
 }
 
 void TerrainMesh::generate()
@@ -55,13 +53,8 @@ void TerrainMesh::generate()
 			textureCoords.push_back(texU);
 			textureCoords.push_back(texV);
 
-			// generate heightmap coords
-			float hmU = (float)x / (float)TERRAIN_X;
-			float hmV = (float)z / (float)TERRAIN_Z;
-			heightMapCoords.push_back(hmU);
-			heightMapCoords.push_back(hmV);
-
 			// store vertex
+			//glm::vec3 vertex = glm::vec3(float(x), heightMap.getHeightAt(float(x), float(z)), float(z));
 			glm::vec3 vertex = glm::vec3(float(x), Y_POSITION, float(z));
 			vertices.push_back(vertex.x);
 			vertices.push_back(vertex.y);

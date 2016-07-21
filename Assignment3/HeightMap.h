@@ -12,7 +12,7 @@ class HeightMap
 private:
 	std::vector<glm::vec3>	rgbData = std::vector<glm::vec3>();
 	PerlinNoise perlinNoise;
-	glm::vec3 baseColor = glm::vec3(1.0, 0.0, 0.0);
+	glm::vec3			baseColor = glm::vec3(1.0, 0.0, 0.0);
 	float largestHeight = 0.0;
 
 	void generate();	

@@ -89,7 +89,7 @@ extern "C" int main(int argc, char* argv[])
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)* terrainMesh.vertices.size(), &terrainMesh.vertices[0]);	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// initialize texture UVcoords VBO	
+	// initialize UVcoords VBO	
 	GLuint texcoordVBO = 0;
 	if (!terrainMesh.textureCoords.empty())
 	{
@@ -98,7 +98,7 @@ extern "C" int main(int argc, char* argv[])
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.textureCoords.size(), NULL, GL_STATIC_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.textureCoords.size(), &terrainMesh.textureCoords[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}	
+	}
 
 	// initialize normals VBO	
 	GLuint normalVBO = 0;
@@ -119,15 +119,22 @@ extern "C" int main(int argc, char* argv[])
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * terrainMesh.indices.size(), &terrainMesh.indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// initialize heightmap UVcoords VBO	
-	GLuint heightmapCoordVBO = 0;
-	if (!terrainMesh.heightMapCoords.empty())
+	// initialize heightmap VBO
+	GLuint heightmapVBO = 0;
+	std::vector<float> RGBHeightMap = terrainMesh.heightMap.getRGBDataAsFloatVector(false);
+	if (!RGBHeightMap.empty())
 	{
-		glGenBuffers(1, &heightmapCoordVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, heightmapCoordVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.heightMapCoords.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.heightMapCoords.size(), &terrainMesh.heightMapCoords[0]);
+		glGenBuffers(1, &heightmapVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * RGBHeightMap.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * RGBHeightMap.size(), &RGBHeightMap[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	// check for errors
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cerr << "OpenGL error: " << err << std::endl;
 	}
 	//============================================================
 
@@ -140,7 +147,6 @@ extern "C" int main(int argc, char* argv[])
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",		
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",
 		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
-		//"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\heightmap.png",
 		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},		
 	};
 
@@ -163,11 +169,6 @@ extern "C" int main(int argc, char* argv[])
 		NULL						// data
 	);
 
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR) {
-		std::cerr << "OpenGL error: " << err << std::endl;
-	}
-
 	// load each texture path into the opengl array texture
 	int layerNumber = 0;
 	for (int i=0; i < texturePaths.size(); i++)
@@ -176,7 +177,7 @@ extern "C" int main(int argc, char* argv[])
 
 		int imgWidth;
 		int imgHeight;
-		int nColorDepth;
+		int nColorDepth;	
 
 		// load the texture file
 		unsigned char* pixels = stbi_load(texturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
@@ -203,7 +204,7 @@ extern "C" int main(int argc, char* argv[])
 			1, 						// depth
 			GL_RGBA,				// format
 			GL_UNSIGNED_BYTE,		// type
-			pixels					// data
+			pixels					// data	
 		);
 
 		// check for errors
@@ -222,35 +223,6 @@ extern "C" int main(int argc, char* argv[])
 		layerNumber++;
 	}	
 
-	// upload heightmap as a separate texture
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	std::vector<float> rgbaData = terrainMesh.heightMap.getRGBDataAsFloatVector(true);
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_RGBA32F,
-		terrainMesh.heightMap.WIDTH,
-		terrainMesh.heightMap.HEIGHT,
-		0,
-		GL_RGBA,
-		GL_FLOAT,
-		rgbaData.data());
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// unbind texture
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	GLenum err2;
-	while ((err2 = glGetError()) != GL_NO_ERROR) {
-		std::cerr << "OpenGL error: " << err2 << std::endl;
-	}
-
 	// unbind texture
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	
 	//============================================================
@@ -267,7 +239,6 @@ extern "C" int main(int argc, char* argv[])
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
 		"uniform sampler2DArray iTextureArray;\n"
-		"uniform sampler2D iHeightMapTextureSampler;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -277,13 +248,13 @@ extern "C" int main(int argc, char* argv[])
 	//======================== LIGHTS ============================
 	glm::vec3 light = glm::vec3(4, 40, 4);
 	//============================================================
-
+	
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
 	Camera camera = Camera(4, 40, 4);
     while (1)
-    {	
+    {			
 		//================= UPDATE USER INPUT ========================
 		double currentTime = SDL_GetTicks() / 1000.0;		
 		float deltaTime = float(currentTime - lastTime);
@@ -362,15 +333,6 @@ extern "C" int main(int argc, char* argv[])
 			glUniform1i(iTextureArraySamplerLoc, 0);
 		}		
 
-		// generate separate uniform for heightmap texture
-		GLuint iHeightMapTextureSamplerLoc = glGetUniformLocation(*shaderId, "iHeightMapTextureSampler");
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		if (iHeightMapTextureSamplerLoc != -1)
-		{
-			glUniform1i(iHeightMapTextureSamplerLoc, 1);
-		}
-
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*shaderId);
 		//============================================================
@@ -439,7 +401,7 @@ extern "C" int main(int argc, char* argv[])
 			glEnableVertexAttribArray(2);
 
 			glBindVertexArray(0);
-		}
+		}		
 
 		// attach the index EBO to the mesh VAO
 		if (indicesEBO != 0)
@@ -451,28 +413,22 @@ extern "C" int main(int argc, char* argv[])
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
 
 			glBindVertexArray(0);
-		}
+		}		
 
-		// Attach heightmapcoord buffer as attribute 3
-		if (heightmapCoordVBO != 0)
+		// attach the heightmap VBO to the mesh VAO
+		if (heightmapVBO != 0)
 		{
 			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, heightmapCoordVBO);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
+			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
 			glEnableVertexAttribArray(3);
-
 			glBindVertexArray(0);
 		}
 
 		// Can now bind the vertex array object to the graphics pipeline, to render with it.
 		// For example:
-		glBindVertexArray(meshVAO);
+		glBindVertexArray(meshVAO);		
 		//============================================================	
 
 		// draw wireframe of mesh
