@@ -78,7 +78,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
+	TerrainMesh terrainMesh = TerrainMesh(512, 512, 1.0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -121,13 +121,13 @@ extern "C" int main(int argc, char* argv[])
 
 	// initialize heightmap VBO
 	GLuint heightmapVBO = 0;
-	std::vector<float> RGBHeightMap = terrainMesh.heightMap.getAsFloatVector(GL_RED);
-	if (!RGBHeightMap.empty())
+	std::vector<float> heightMap = terrainMesh.heightMap.getAsFloatVector(GL_RED);
+	if (!heightMap.empty())
 	{
 		glGenBuffers(1, &heightmapVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * RGBHeightMap.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * RGBHeightMap.size(), &RGBHeightMap[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * heightMap.size(), NULL, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * heightMap.size(), &heightMap[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 

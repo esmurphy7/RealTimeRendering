@@ -17,8 +17,8 @@ void main()
 	float LightPower = 500.0f;	
 	
 	// Material properties	
-	//vec3 MaterialDiffuseColor = vec3(1.0, 0.0, 0.0);
-	vec3 MaterialDiffuseColor = texture( iTextureArray, vec3(UV, TargetTextureId) ).rgb;
+	vec3 MaterialDiffuseColor = vec3(1.0, 0.5, 0.0);
+	//vec3 MaterialDiffuseColor = texture( iTextureArray, vec3(UV, TargetTextureId) ).rgb;
 	//vec3 MaterialDiffuseColor = texture(iHeightMapTextureSampler, UV).rgb;
 	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
