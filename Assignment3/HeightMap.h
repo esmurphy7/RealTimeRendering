@@ -19,8 +19,9 @@ private:
 
 	bool supportedFormat(GLint dataType, GLint dataFormat);
 	void setHeightAt(glm::vec2 coords, float height);
+	float getRandomInRange(float range);
 	void generate();	
-	void generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, unsigned int maxIncrement);
+	void generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, float hRange);
 
 public:
 	unsigned int WIDTH, HEIGHT;	
@@ -57,10 +58,10 @@ HeightMap::HeightMap(unsigned int width, unsigned int height, unsigned int seed)
 
 	generate();
 
-	generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 10);
+	generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60);
 }
 
-void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, unsigned int maxIncrement)
+void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, float hRange)
 {
 	// base case: unit square passed in
 	if (width == 1 || height == 1)
@@ -71,23 +72,15 @@ void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int widt
 	// avoid off-by-one errors by decrementing dimensions
 	width--;
 	height--;
-	
-	// prevent division by zero
-	if (maxIncrement <= 0)
-	{
-		maxIncrement = 1;
-	}
 
 	// set corners' height
-	int cornerHeight = (rand() % 2);
-	if (cornerHeight == 2)
-	{
-		cornerHeight = -1;
-	}
+	int cornerHeight = getRandomInRange(hRange);
+
 	glm::vec2 topLeft = topLeftCoords;
 	glm::vec2 topRight = glm::vec2(topLeftCoords.x + width, topLeftCoords.y);
 	glm::vec2 bottomLeft = glm::vec2(topLeftCoords.x, topLeftCoords.y + height);
 	glm::vec2 bottomRight = glm::vec2(topLeftCoords.x + width, topLeftCoords.y + height);
+
 	setHeightAt(topLeft, cornerHeight);
 	setHeightAt(topRight, cornerHeight);
 	setHeightAt(bottomLeft, cornerHeight);
@@ -98,7 +91,7 @@ void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int widt
 	glm::vec2 squareCenter = glm::vec2(topLeftCoords.x + width / 2, topLeftCoords.y + height/2);
 
 	// set centre's height : average corners' height, then add random value	
-	float centerHeight = (cornerHeight * 4 / 4) + (rand() % maxIncrement);
+	float centerHeight = (cornerHeight * 4 / 4) + getRandomInRange(hRange);
 	setHeightAt(squareCenter, centerHeight);
 
 	// (Square Step)
@@ -109,10 +102,10 @@ void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int widt
 	glm::vec2 bottomMiddle = glm::vec2(topLeftCoords.x + width/2, topLeftCoords.y + height);
 
 	// compute each centre's height : average corner's height, then add random value		
-	float middleLeftHeight = ((centerHeight + heights2D[topLeftCoords.x][topLeftCoords.y] + heights2D[bottomLeft.x][bottomLeft.y]) / 3) + (rand() % maxIncrement);
-	float topMiddleHeight = ((centerHeight + heights2D[topLeft.x][topLeft.y] + heights2D[topRight.x][topRight.y]) / 3) + (rand() % maxIncrement);
-	float middleRightHeight = ((centerHeight + heights2D[topRight.x][topRight.y] + heights2D[bottomRight.x][bottomRight.y]) / 3) + (rand() % maxIncrement);
-	float bottomMiddleHeight = ((centerHeight + heights2D[bottomLeft.x][bottomLeft.y] + heights2D[bottomRight.x][bottomRight.y]) / 3) + (rand() % maxIncrement);	
+	float middleLeftHeight = ((centerHeight + heights2D[topLeftCoords.x][topLeftCoords.y] + heights2D[bottomLeft.x][bottomLeft.y]) / 3.0) + getRandomInRange(hRange);
+	float topMiddleHeight = ((centerHeight + heights2D[topLeft.x][topLeft.y] + heights2D[topRight.x][topRight.y]) / 3.0) + getRandomInRange(hRange);
+	float middleRightHeight = ((centerHeight + heights2D[topRight.x][topRight.y] + heights2D[bottomRight.x][bottomRight.y]) / 3.0) + getRandomInRange(hRange);
+	float bottomMiddleHeight = ((centerHeight + heights2D[bottomLeft.x][bottomLeft.y] + heights2D[bottomRight.x][bottomRight.y]) / 3.0) + getRandomInRange(hRange);
 
 	// set each centre's height 
 	setHeightAt(middleLeft, middleLeftHeight);
@@ -126,13 +119,13 @@ void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int widt
 	height = height++ / 2;
 
 	//reduce range of random increment
-	maxIncrement--;
+	hRange /= 2;
 
 	// recurse on quadrants
-	generateDiamondSquare(topLeftCoords, width, height, maxIncrement);
-	generateDiamondSquare(topMiddle, width, height, maxIncrement);
-	generateDiamondSquare(middleLeft, width, height, maxIncrement);
-	generateDiamondSquare(squareCenter, width, height, maxIncrement);
+	generateDiamondSquare(topLeftCoords, width, height, hRange);
+	generateDiamondSquare(topMiddle, width, height, hRange);
+	generateDiamondSquare(middleLeft, width, height, hRange);
+	generateDiamondSquare(squareCenter, width, height, hRange);
 }
 
 void HeightMap::generate()
@@ -148,6 +141,13 @@ void HeightMap::generate()
 			rgbData.push_back(glm::vec3(R, baseColor.g, baseColor.b));
 		}
 	}
+}
+
+float HeightMap::getRandomInRange(float range)
+{
+	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	float rInRange = (r * 2 * range) - range;
+	return rInRange;
 }
 
 void HeightMap::setHeightAt(glm::vec2 coords, float height)
