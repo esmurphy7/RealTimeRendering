@@ -10,39 +10,18 @@ out vec3 Position_worldspace;
 out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
-out flat int TargetTextureId;
+out float VertexHeightModelspace;
 
 void main()
-{	
-	float vertexHeight_worldspace = RGBHeight.r;
-	
-	// determine texture to sample based on height and steepness of vertex
-	TargetTextureId = 0;
-	if(vertexHeight_worldspace > 0.5)
-	{
-		// sand texture
-		TargetTextureId = 0;
-		if(vertexHeight_worldspace > 1)
-		{
-			// grass texture
-			TargetTextureId = 1;
-			if(vertexHeight_worldspace > 1.5)
-			{
-				// snow texture
-				TargetTextureId = 2;
-			}
-		}
-	}
+{		
 
-	// Output position of the vertex, in clip space : MVP * position
-	 // Offset the y position by the value of current texel's colour value ?
-	//vec4 textureColor = texture(iTextureArray, vec3(vertexUV, TargetTextureId));
-
+	// displace the vertex by height
 	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
-	displacedPositionModelSpace.y += vertexHeight_worldspace;
+	displacedPositionModelSpace.y += RGBHeight.r;		
+	VertexHeightModelspace = displacedPositionModelSpace.y;
 
 	// offset the height (y-position) of the vertex based on the texture's R color
-    //vec4 offset = vec4(vertexPosition_modelspace.x, vertexHeight_worldspace, vertexPosition_modelspace.z, 1.0);
+    //vec4 offset = vec4(vertexPosition_modelspace.x, RGBHeight.r, vertexPosition_modelspace.z, 1.0);
 	//gl_Position =  iModelViewProjection * offset;
 	gl_Position =  iModelViewProjection * vec4(displacedPositionModelSpace, 1);	
 

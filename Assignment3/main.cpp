@@ -78,7 +78,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(512, 512, 1.0);
+	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO
@@ -144,9 +144,9 @@ extern "C" int main(int argc, char* argv[])
 
 	// initialize set of texture paths
 	std::vector<std::string> texturePaths = {
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",		
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",				
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",
+		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",			
 		//{"WaterTexture", "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga"},		
 	};
 
