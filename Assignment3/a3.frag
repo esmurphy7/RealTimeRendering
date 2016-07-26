@@ -26,6 +26,10 @@ void main()
 	float rockHeight = 2.0;
 	float grassHeight = 1.0;
 	float sandHeight = 0.0;
+	//float snowHeight = 0.8;
+	//float rockHeight = 0.6;
+	//float grassHeight = 0.4;
+	//float sandHeight = 0.0;
 
 	// compute distance of current vertex to each texture height
 	float snowDist = length(VertexHeightModelspace - snowHeight);
@@ -37,18 +41,18 @@ void main()
 
 	// define blending weights for each texture
 	//float snowWeight = 1.0;
-	float snowWeight = snowDist / sumDist;	
+	float snowWeight = 1.0 - (snowDist / sumDist);	
 	snowWeight = clamp(snowWeight, 0.0, 1.0);
 
-	float rockWeight = rockDist / sumDist;
+	float rockWeight = 1.0 - (rockDist / sumDist);
 	rockWeight = clamp(rockWeight, 0.0, 1.0);
 
 	//float grassWeight = 0.5;
-	float grassWeight = grassDist / sumDist;
+	float grassWeight = 1.0 - (grassDist / sumDist);
 	grassWeight = clamp(grassWeight, 0.0, 1.0);
 
 	//float sandWeight = 0.25;
-	float sandWeight = sumDist / sandDist;
+	float sandWeight = 1.0 - (sumDist / sandDist);
 	sandWeight = clamp(sandWeight, 0.0, 1.0);
 
 	// blend colors from textures based on weights
