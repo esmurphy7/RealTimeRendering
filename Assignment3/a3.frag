@@ -14,6 +14,13 @@ float map(float s, float a1, float a2, float b1, float b2)
     return b1 + (s-a1)*(b2-b1)/(a2-a1);
 }
 
+float calculateWeight(float dist, float maxDist)
+{
+	 float weight = 1.0 - (dist / maxDist);
+	 weight = clamp(weight, 0.0, 1.0);
+	 return weight;
+}
+
 void main()
 {	
 	// Light emission properties
@@ -40,20 +47,10 @@ void main()
 	float sumDist = snowDist + rockDist + grassDist + sandDist;
 
 	// define blending weights for each texture
-	//float snowWeight = 1.0;
-	float snowWeight = 1.0 - (snowDist / sumDist);	
-	snowWeight = clamp(snowWeight, 0.0, 1.0);
-
-	float rockWeight = 1.0 - (rockDist / sumDist);
-	rockWeight = clamp(rockWeight, 0.0, 1.0);
-
-	//float grassWeight = 0.5;
-	float grassWeight = 1.0 - (grassDist / sumDist);
-	grassWeight = clamp(grassWeight, 0.0, 1.0);
-
-	//float sandWeight = 0.25;
-	float sandWeight = 1.0 - (sumDist / sandDist);
-	sandWeight = clamp(sandWeight, 0.0, 1.0);
+	float snowWeight = calculateWeight(snowDist, sumDist);
+	float rockWeight = calculateWeight(rockDist, sumDist);
+	float grassWeight = calculateWeight(grassDist, sumDist);
+	float sandWeight = calculateWeight(sandDist, sumDist);
 
 	// blend colors from textures based on weights
 	vec4 snowColor = texture(iTextureArray, vec3(UV, 0)) * snowWeight;
