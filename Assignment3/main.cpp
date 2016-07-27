@@ -14,6 +14,7 @@
 #include "InputHandler.h"
 #include "Camera.h"
 #include "TerrainMesh.h"
+#include "Skybox.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 960
@@ -73,159 +74,20 @@ extern "C" int main(int argc, char* argv[])
 	// Hook up the vertex and index buffers to a "vertex array object" (VAO)
 	// VAOs are the closest thing OpenGL has to a "mesh" object.
 	// VAOs are used to feed data from buffers to thgle inputs of a vertex shader.
-	GLuint meshVAO;
-	glGenVertexArrays(1, &meshVAO);
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
+	Skybox skyBox = Skybox();
+	//skyBox.load();
+
 	TerrainMesh terrainMesh = TerrainMesh(64, 64, 0.0);
-	terrainMesh.generate();
+	terrainMesh.load();
 
-	// initialize vertex VBO
-	GLuint positionVBO = 0;
-	glGenBuffers(1, &positionVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* terrainMesh.vertices.size(), NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)* terrainMesh.vertices.size(), &terrainMesh.vertices[0]);	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// initialize UVcoords VBO	
-	GLuint texcoordVBO = 0;
-	if (!terrainMesh.textureCoords.empty())
-	{
-		glGenBuffers(1, &texcoordVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.textureCoords.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.textureCoords.size(), &terrainMesh.textureCoords[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	// initialize normals VBO	
-	GLuint normalVBO = 0;
-	if (!terrainMesh.normals.empty())
-	{
-		glGenBuffers(1, &normalVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * terrainMesh.normals.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * terrainMesh.normals.size(), &terrainMesh.normals[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	// initialize indices EBO
-	GLuint indicesEBO = 0;
-	glGenBuffers(1, &indicesEBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * terrainMesh.indices.size(), NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * terrainMesh.indices.size(), &terrainMesh.indices[0]);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	// initialize heightmap VBO
-	GLuint heightmapVBO = 0;
-	std::vector<float> heightMap = terrainMesh.heightMap.getAsFloatVector(GL_RED);
-	if (!heightMap.empty())
-	{
-		glGenBuffers(1, &heightmapVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * heightMap.size(), NULL, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * heightMap.size(), &heightMap[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	// check for errors
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR) {
-		std::cerr << "OpenGL error: " << err << std::endl;
-	}
+	
 	//============================================================
 
 	//===================== TEXTURES =============================
-	const unsigned int TextureWidth = 512;
-	const unsigned int TextureHeight = 512;
-
-	// initialize set of texture paths
-	std::vector<std::string> texturePaths = {
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",				
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\rock.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",					
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga",		
-	};
-
-	// generate and bind texture object
-	GLuint textureArrayId;
-	glGenTextures(1, &textureArrayId);
-	//glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
-
-	glTexImage3D(
-		GL_TEXTURE_2D_ARRAY,		// target
-		0,							// level			
-		GL_RGBA8,					// internal format		
-		TextureWidth,				// width
-		TextureHeight,				// height
-		texturePaths.size(),		// depth
-		0,							// border
-		GL_RGBA,					// format
-		GL_UNSIGNED_BYTE,			// type
-		NULL						// data
-	);
-
-	// load each texture path into the opengl array texture
-	int layerNumber = 0;
-	for (int i=0; i < texturePaths.size(); i++)
-	{
-		std::string texturePath = texturePaths.at(i);
-
-		int imgWidth;
-		int imgHeight;
-		int nColorDepth;	
-
-		// load the texture file
-		unsigned char* pixels = stbi_load(texturePath.c_str(), &imgWidth, &imgHeight, &nColorDepth, 0);
-		if (pixels == NULL)
-		{
-			fprintf(stderr, "Failed to load texture file: %s\n", texturePath.c_str());
-			continue;
-		}
-		if (imgWidth != TextureWidth || imgHeight != TextureHeight)
-		{
-			fprintf(stderr, "Image dimensions does not match texture dimensions: %s\n", texturePath.c_str());
-			continue;
-		}
-
-		// upload texture data
-		glTexSubImage3D(
-			GL_TEXTURE_2D_ARRAY,	// target
-			0,						// level
-			0,						// xoffset
-			0,						// yoffset 
-			layerNumber,			// zoffset
-			imgWidth,				// width
-			imgHeight,				// height
-			1, 						// depth
-			GL_RGBA,				// format
-			GL_UNSIGNED_BYTE,		// type
-			pixels					// data	
-		);
-
-		// check for errors
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR) {
-			std::cerr << "OpenGL error: " << err << std::endl;
-		}
-
-		// set filtering parameters
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-
-		// target next texture
-		layerNumber++;
-	}	
-
-	// unbind texture
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);	
+	
 	//============================================================
 
 	//======================= SHADERS ============================
@@ -240,6 +102,7 @@ extern "C" int main(int argc, char* argv[])
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
 		"uniform sampler2DArray iTextureArray;\n"
+		"uniform samplerCube iSkyBoxCubeTexture;\n"
 	);
 
 	// define shader program from vertex and fragment shader files
@@ -325,14 +188,9 @@ extern "C" int main(int argc, char* argv[])
 			glUniform3f(iLightPosition_worldspaceLoc, light.x, light.y, light.z);
 		}		
 
-		// generate uniform reference and pass it to shader
-		GLuint iTextureArraySamplerLoc = glGetUniformLocation(*shaderId, "iTextureArray");
-		if (iTextureArraySamplerLoc != -1)
-		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
-			glUniform1i(iTextureArraySamplerLoc, 0);
-		}		
+		// generate uniforms for object textures
+		terrainMesh.generateTextureUniform(shaderId, "iTextureArray");
+		//skyBox.generateTextureUniform(shaderId, "iSkyBoxCubeTexture");
 
 		// set OpenGL's shader program (must be called in loop)
 		glUseProgram(*shaderId);
@@ -352,100 +210,16 @@ extern "C" int main(int argc, char* argv[])
 		glDepthFunc(GL_LESS);
 		//============================================================
 
-		//================ VAO ATTRIBUTES ===========================		
-		// Attach position buffer as attribute 0
-		if (positionVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, positionVBO);			
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(0);
-
-			glBindVertexArray(0);
-		}
-
-		// Attach texcoord buffer as attribute 1
-		if (texcoordVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, texcoordVBO);			
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(1);
-
-			glBindVertexArray(0);
-		}		
-
-		// Attach normal buffer as attribute 2
-		if (normalVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: glVertexAttribPointer sets the current GL_ARRAY_BUFFER_BINDING as the source of data for this attribute
-			// That's why we bind a GL_ARRAY_BUFFER before calling glVertexAttribPointer then unbind right after (to clean things up).
-			glBindBuffer(GL_ARRAY_BUFFER, normalVBO);			
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-			// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-			glEnableVertexAttribArray(2);
-
-			glBindVertexArray(0);
-		}		
-
-		// attach the index EBO to the mesh VAO
-		if (indicesEBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-
-			// Note: Calling glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); when a VAO is bound attaches the index buffer to the VAO.
-			// From an API design perspective, this is subtle.
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-
-			glBindVertexArray(0);
-		}		
-
-		// attach the heightmap VBO to the mesh VAO
-		if (heightmapVBO != 0)
-		{
-			glBindVertexArray(meshVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, heightmapVBO);
-			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glEnableVertexAttribArray(3);
-			glBindVertexArray(0);
-		}
-
-		// Can now bind the vertex array object to the graphics pipeline, to render with it.
-		// For example:
-		glBindVertexArray(meshVAO);		
+		//================ VAO ATTRIBUTES ===========================
+		terrainMesh.attachToVAO(0, 1, 2, 3);
+		//skyBox.attachToVAO(4);			
 		//============================================================	
 
 		// draw wireframe of mesh
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		// Draw the vertices		
-		glDrawElements(
-			GL_TRIANGLES,					// mode
-			terrainMesh.indices.size(),		// count
-			GL_UNSIGNED_INT,				// type
-			(void*)0						// element array buffer offset
-		);
-
-		// disable the attribute after drawing
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		terrainMesh.draw();
+		//skyBox.draw();		
 
 		// disable the depth buffer
 		glDisable(GL_DEPTH_TEST);
