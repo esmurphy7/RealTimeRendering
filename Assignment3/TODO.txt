@@ -1,109 +1,21 @@
 =========================================================================
-Infrastructure
-- commit correct project files - http://stackoverflow.com/questions/3922660/which-visual-c-file-types-should-be-committed-to-version-control
-	- .vcxproj, .sln, .vcxproj.filters
-- write gitignore file - https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+Skybox
+- surround scene with cube object
+	- build vertices, indices, and normals and pass to shader through VBOs
+
+- use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/Cubemaps, http://stackoverflow.com/questions/26474588/opengl-cube-map-texture-no-uv-mapping
+	- instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side
 
 =========================================================================
-Shaders
-OpenGL Tutorial - http://www.opengl-tutorial.org/beginners-tutorials
-Built-in variables - https://www.opengl.org/wiki/Built-in_Variable_(GLSL)
-- Use "shaderset.cpp" from examples to load and compile shader files
-- Vertex shader
-	Pipeline Summary - http://stackoverflow.com/questions/15588860/what-exactly-are-eye-space-coordinates
-	Matrix & Transformation Explanation - http://www.learnopengles.com/understanding-opengls-matrices/
-	Detailed Matrix Explanation - http://www.songho.ca/opengl/gl_transform.html
-- Fragment shader - http://gamedevelopment.tutsplus.com/tutorials/a-beginners-guide-to-coding-graphics-shaders--cms-23313
-		
-=========================================================================
-Main
-x Z-buffer
-	x use OpenGL's default depth buffer test
-
-x write class to abstract out input handling and camera attribute computing
-	x set keySpeed constant in InputHandler
-	x set mouseSpeed constant in InputHandler		
-	x store change in arrow key values in inputData struct for camera class to use to compute position vector
-	x rename InputHandler.updateInput()
-	x remove tutorial's copied and pasted code
-	x make InputHandler stateful
-		x inputData member attribute
-		x getInputData() getter function
-		x store change in mouse wheel instead of instance of mouse wheel
-
-x play with and understand mouse and keyspeed
-
-x compute horizontal and vertical angles properly
-	x reset mouse position to center of screen after each main loop
-
-x properly handling SDL window closing
-	x return exit status from whichever function handles input and call SDL_Exit() from main using this status
-
-x accept mouse wheel input to adjust FoV
-	x adjust magnitude of change
-		x mousewheel only has +1.0 and -1.0 position - how to have more "continuous" range?
-			x accumulate mousewheel changes
-				x set wheel bounds
-
-x apply texture to .obj cube
-	 x load "models\cube\default.png" as texture image
-		x dynamically specify texture file names based on given shape, its material ids			
-		x load texture file names using paths relative to project root
-			x concatenate base obj path and texture image filename
-	 x generate textureId
-	 x bind texture 
-	 x pass texture to OpenGL
-	 x set filtering strategy
-	 x activate and pass texture channel to shader
-
-x load and render .obj files using tinyloader
-	x include and setup tiny_obj_loader
-	x initialize, bind and fill vertex, UVcoords, and normals VBOs
-	x initialize, bind and fill indices EBO
-	x initialize mesh VAO
-	x attach vertex, UVcoords, and normal VBOs to mesh VAO
-	x update vertex shader
-		x accept and relay UV coords to fragment shader
-		x double check that reference numbers of VAO attributes match layout numbers in shader
-	x update fragment shader
-		x accept UV coord as input
-		x reference corresponding texture via uniform
-			x init uniform in main setup
-			x pass uniform to shader in main loop
-		x output corresponding color with texture reference and UV coord
-
-x implement phong shading
-	x setup single point light source
-		x pass a point vector as a uniform to the shader ("iLightPosition_worldspace")
-	x update vertex shader
-		x uniforms:
-			x view matrix
-			x model matrix
-			x iLightposition_worldspace
-		x outputs:
-			x Position_worldspace
-			x Normal_cameraspace
-			x EyeDirection_cameraspace
-			x LightDirection_cameraspace
-			
-	x update fragment shader
-		x inputs:
-			x Position_worldspace
-			x Normal_cameraspace
-			x EyeDirection_cameraspace
-			x LightDirection_cameraspace
-		x uniforms:
-			x MV matrix
-			x LightPosition_worldspace
-
-- load and render obj file with multiple shapes
-	x initialize, bind, and fill VBOs, EBO for each .obj
-	x attach VBOs and EBO as attributes to corresponding mesh VAO for each .obj
-	- dynamically load textures for each material_id in each mesh
-		- properly load diffuse, ambient, specular, etc. textures
-	- image file loading
-	- OpenGL texture reference
-	- OpenGL pixel data uploading
-	- filtering parameters
-
-- clean up VBOs, VAOs, programs, textures etc. (see end of "tutorial07.cpp" for deletion functions)
+Control Parameters of Noise Functions with UI
+- download and integrate ImGUI
+- design UI
+	- label & slider for each parameter
+- update InputHandler class
+	- allow free mouse movement
+	- handle button clicks	
+- redesign HeightMap class to accept function pointer as noise generation function
+- implement INoiseFunction interface
+	- accept noise parameters in constructor
+	- use noise parameters in underlying noise function
+	- return pointer to noise function in getNoiseFunction()
