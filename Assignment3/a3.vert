@@ -17,7 +17,7 @@ void main()
 
 	// displace the vertex by height
 	vec3 displacedPositionModelSpace = vertexPosition_modelspace;
-	displacedPositionModelSpace.y += RGBHeight.r;		
+	displacedPositionModelSpace.y += RGBHeight.r * 10.0;		
 	VertexHeightModelspace = displacedPositionModelSpace.y;
 
 	// offset the height (y-position) of the vertex based on the texture's R color

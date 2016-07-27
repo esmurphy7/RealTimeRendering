@@ -36,7 +36,7 @@ TerrainMesh::TerrainMesh(int width, int height, float yPos)
 void TerrainMesh::generate()
 {	
 	// generate heightmap
-	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, 7);	
+	heightMap = HeightMap(TERRAIN_X, TERRAIN_Z, 1);	
 	//heightMap.saveToPPMFile("heightmap.ppm");
 	heightMap.saveToPNGFile("heightmap.png");
 

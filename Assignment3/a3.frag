@@ -14,11 +14,11 @@ float map(float s, float a1, float a2, float b1, float b2)
     return b1 + (s-a1)*(b2-b1)/(a2-a1);
 }
 
-float calculateWeight(float dist, float maxDist)
+float calculateWeight(float dist, float range)
 {
-	 float weight = 1.0 - (dist / maxDist);
-	 weight = clamp(weight, 0.0, 1.0);
-	 return weight;
+	float weight = 1.0 - (dist / range);
+	weight = clamp(weight, 0.0, 1.0);
+	return weight;
 }
 
 void main()
@@ -29,14 +29,11 @@ void main()
 	float LightPower = 500.0f;		
 
 	// assign heights for each texture
-	float snowHeight = 3.0;
-	float rockHeight = 2.0;
-	float grassHeight = 1.0;
+	float range = 2.5;
 	float sandHeight = 0.0;
-	//float snowHeight = 0.8;
-	//float rockHeight = 0.6;
-	//float grassHeight = 0.4;
-	//float sandHeight = 0.0;
+	float grassHeight = sandHeight + range;		
+	float rockHeight = grassHeight + range;
+	float snowHeight = rockHeight + range;
 
 	// compute distance of current vertex to each texture height
 	float snowDist = length(VertexHeightModelspace - snowHeight);
@@ -44,13 +41,11 @@ void main()
 	float grassDist = length(VertexHeightModelspace - grassHeight);
 	float sandDist = length(VertexHeightModelspace - sandHeight);
 
-	float sumDist = snowDist + rockDist + grassDist + sandDist;
-
 	// define blending weights for each texture
-	float snowWeight = calculateWeight(snowDist, sumDist);
-	float rockWeight = calculateWeight(rockDist, sumDist);
-	float grassWeight = calculateWeight(grassDist, sumDist);
-	float sandWeight = calculateWeight(sandDist, sumDist);
+	float snowWeight = calculateWeight(snowDist, range);
+	float rockWeight = calculateWeight(rockDist, range);
+	float grassWeight = calculateWeight(grassDist, range);
+	float sandWeight = calculateWeight(sandDist, range);
 
 	// blend colors from textures based on weights
 	vec4 snowColor = texture(iTextureArray, vec3(UV, 0)) * snowWeight;
@@ -63,7 +58,7 @@ void main()
 	//blendedColor = mix(blendedColor, grassColor, 1.0);
 
 	// Material properties	
-	//vec3 MaterialDiffuseColor = vec3(1.0, 0.5, 0.0);
+	//vec3 MaterialDiffuseColor = vec3(0.0, 0.0, 0.0);
 	vec3 MaterialDiffuseColor = blendedColor.rgb;
 	//vec3 MaterialDiffuseColor = texture(iHeightMapTextureSampler, UV).rgb;
 	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;

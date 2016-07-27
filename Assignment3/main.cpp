@@ -78,7 +78,7 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================	
 
 	//===================== VBO/EBO ===============================
-	TerrainMesh terrainMesh = TerrainMesh(64, 64, 1.0);
+	TerrainMesh terrainMesh = TerrainMesh(64, 64, 0.0);
 	terrainMesh.generate();
 
 	// initialize vertex VBO

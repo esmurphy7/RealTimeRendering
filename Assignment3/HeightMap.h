@@ -217,8 +217,8 @@ std::vector<float> HeightMap::getAsFloatVector(GLint format)
 	{
 		for (int x = 0; x < WIDTH; x++)
 		{
-			float height = heights2D[x][z];
-			//float height = getHeightAt(x, z);
+			//float height = heights2D[x][z];
+			float height = getHeightAt(x, z);
 			heightMap.push_back(height);
 		}
 	}
