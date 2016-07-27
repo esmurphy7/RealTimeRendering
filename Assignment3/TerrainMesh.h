@@ -123,7 +123,7 @@ void TerrainMesh::attachToVAO(int positionAttr, int texCoordAttr, int normalsAtt
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		// Enable the attribute (they are disabled by default -- this is very easy to forget!!)
-		glEnableVertexAttribArray(texcoordVBO);
+		glEnableVertexAttribArray(texCoordAttr);
 
 		glBindVertexArray(0);
 	}
