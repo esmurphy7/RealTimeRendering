@@ -1,10 +1,31 @@
 =========================================================================
 Skybox
-- surround scene with cube object
-	- build vertices, indices, and normals and pass to shader through VBOs
+- build cube object
+	- create new SkyBox class
+		x hardcode vertices
+		x hardcode paths to faces images
+		x load()
+			x loadVBOs()
+			x loadVAO()
+			x loadTextures()
+		- draw()
+			x disable depth mask
+			- use separate shader?
+			- bind texture?
+			x bind VAO
+			x draw vertices as triangles
+			x unbind VAO
+			x enable depth mask back			
 
 - use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/Cubemaps, http://stackoverflow.com/questions/26474588/opengl-cube-map-texture-no-uv-mapping
-	- instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side
+	- load texture for each face of the cube with glTexImage2D()
+	- set cubemap filtering and wrapping methods
+	- bind the texture to a separate skyboxVAO
+	- generate uniform reference and pass to shader
+		- set preamble
+		- use same texture channel as used to load it
+	- sample from "samplerCube" uniform in fragment shader
+	- in vShader, instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side	
 
 =========================================================================
 Control Parameters of Noise Functions with UI
@@ -19,3 +40,39 @@ Control Parameters of Noise Functions with UI
 	- accept noise parameters in constructor
 	- use noise parameters in underlying noise function
 	- return pointer to noise function in getNoiseFunction()
+
+=========================================================================
+Code Cleanup and Organization
+- move terrain mesh loading and VAO attaching to TerrainMesh class
+		x load()
+			x load VBOs and EBOs
+			x load textures
+		x attach(int attribute, GLuint vao)
+			x attach VBOs and EBOs to vao at attribute
+		- draw()
+			- bind texture?
+			x bind VAO to graphics pipeline
+			x disable attribute
+			x unbind VAO
+
+- separate main function into generic functions
+	- init()
+		- OpenGl stuff
+		- SDL stuff
+		- shader setup
+		- lights
+		- camera
+		- inputHandler
+		- TerrainMesh and Skybox loading
+	- update(): (inside main loop)
+		- SDL input
+		- matrix computation
+		- shader updatePrograms() call
+		- shader uniform creation
+		- OpenGl stuff
+		- VAO attribute attachment
+		- OpenGL
+	- render(): (inside main loop)
+		- draw calls
+		- OpenGL end-of-frame stuff
+		- SDL end-of-frame stuff
