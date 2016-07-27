@@ -22,6 +22,7 @@ private:
 	float getRandomInRange(float range);
 	void generate();	
 	void generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, float hRange, float scale);
+	void generateTestHeightMap();
 
 public:
 	unsigned int WIDTH, HEIGHT;	
@@ -57,8 +58,8 @@ HeightMap::HeightMap(unsigned int width, unsigned int height, unsigned int seed)
 	heights2D = std::vector<std::vector<float>>(WIDTH, std::vector<float>(HEIGHT, 0));
 
 	generate();
-
-	generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60, 1.0);
+	//generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60, 1.0);
+	//generateTestHeightMap();
 }
 
 void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, float hRange, float scale)
@@ -143,6 +144,26 @@ void HeightMap::generate()
 	}
 }
 
+void HeightMap::generateTestHeightMap()
+{
+	float numSteps = 5;
+	for (int x = 0; x < WIDTH; x++)
+	{
+		int xRange = WIDTH / numSteps;
+		float xInterval = (1.0 / numSteps) / 2;
+		float xH = (xInterval * (x / xRange));
+		
+		for (int z = 0; z < HEIGHT; z++)
+		{
+			int zRange = HEIGHT / numSteps;
+			float zInterval = (1.0 / numSteps) / 2;
+			float zH = (zInterval * (z / zRange));
+
+			rgbData.push_back(glm::vec3(xH + zH, 0.0, 0.0));
+		}
+	}
+}
+
 /*
 *	Returns a random float between [-range, +range]
 */
@@ -212,40 +233,39 @@ std::vector<float> HeightMap::getAsFloatVector(GLint format)
 	
 	}
 
-	std::vector<float> heightMap = std::vector<float>();
+	/*std::vector<float> heightMap = std::vector<float>();
 	for (int z = 0; z < HEIGHT; z++)
 	{
 		for (int x = 0; x < WIDTH; x++)
 		{
-			//float height = heights2D[x][z];
-			float height = getHeightAt(x, z);
+			float height = heights2D[x][z];
 			heightMap.push_back(height);
 		}
 	}
-	return heightMap;
+	return heightMap;*/
 
 	// convert rgb data to float vector
-	//std::vector<float> rgbFloats = std::vector<float>();
-	//for (int i = 0; i < rgbData.size(); i++)
-	//{
-	//	glm::vec3 color = rgbData.at(i);
-	//	rgbFloats.push_back(color.r);
+	std::vector<float> rgbFloats = std::vector<float>();
+	for (int i = 0; i < rgbData.size(); i++)
+	{
+		glm::vec3 color = rgbData.at(i);
+		rgbFloats.push_back(color.r);
 
-	//	// make sure that the red channel wasn't specifically requested
-	//	if (format != GL_RED)
-	//	{
-	//		rgbFloats.push_back(color.g);
-	//		rgbFloats.push_back(color.b);
-	//	}
+		// make sure that the red channel wasn't specifically requested
+		if (format != GL_RED)
+		{
+			rgbFloats.push_back(color.g);
+			rgbFloats.push_back(color.b);
+		}
 
-	//	// check if alpa format requested
-	//	if (format == GL_RGBA)
-	//	{
-	//		float alpha = 1.0;
-	//		rgbFloats.push_back(alpha);
-	//	}
-	//}
-	//return rgbFloats;
+		// check if alpa format requested
+		if (format == GL_RGBA)
+		{
+			float alpha = 1.0;
+			rgbFloats.push_back(alpha);
+		}
+	}
+	return rgbFloats;
 }
 
 std::vector<unsigned char> HeightMap::getAsByteVector(GLint format)
