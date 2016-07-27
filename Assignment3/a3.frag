@@ -8,11 +8,6 @@ in float VertexHeightModelspace;
 
 // Ouput data
 out vec3 color;
-	
-float map(float s, float a1, float a2, float b1, float b2)
-{
-    return b1 + (s-a1)*(b2-b1)/(a2-a1);
-}
 
 float calculateWeight(float dist, float range)
 {
@@ -29,8 +24,9 @@ void main()
 	float LightPower = 500.0f;		
 
 	// assign heights for each texture
-	float range = 2.5;
-	float sandHeight = 0.0;
+	float range = 2.0;
+	float waterHeight = 0.0;
+	float sandHeight = waterHeight + range;
 	float grassHeight = sandHeight + range;		
 	float rockHeight = grassHeight + range;
 	float snowHeight = rockHeight + range;
@@ -40,22 +36,27 @@ void main()
 	float rockDist = length(VertexHeightModelspace - rockHeight);
 	float grassDist = length(VertexHeightModelspace - grassHeight);
 	float sandDist = length(VertexHeightModelspace - sandHeight);
+	float waterDist = length(VertexHeightModelspace - waterHeight);
 
 	// define blending weights for each texture
 	float snowWeight = calculateWeight(snowDist, range);
 	float rockWeight = calculateWeight(rockDist, range);
 	float grassWeight = calculateWeight(grassDist, range);
 	float sandWeight = calculateWeight(sandDist, range);
+	float waterWeight = calculateWeight(waterDist, range);
 
 	// blend colors from textures based on weights
 	vec4 snowColor = texture(iTextureArray, vec3(UV, 0)) * snowWeight;
 	vec4 rockColor = texture(iTextureArray, vec3(UV, 1)) * rockWeight;
 	vec4 sandColor = texture(iTextureArray, vec3(UV, 2)) * sandWeight;
 	vec4 grassColor = texture(iTextureArray, vec3(UV, 3)) * grassWeight;
+	vec4 waterColor = texture(iTextureArray, vec3(UV, 4)) * waterWeight;
 
-	vec4 blendedColor = snowColor + rockColor + sandColor + grassColor;
-	//vec4 blendedColor = mix(snowColor, sandColor, 1.0);
-	//blendedColor = mix(blendedColor, grassColor, 1.0);
+	vec4 blendedColor = snowColor 
+						+ rockColor 
+						+ sandColor 
+						+ grassColor 
+						+ waterColor;
 
 	// Material properties	
 	//vec3 MaterialDiffuseColor = vec3(0.0, 0.0, 0.0);
