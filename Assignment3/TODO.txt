@@ -1,16 +1,16 @@
 =========================================================================
 Skybox
-- build cube object
-	- create new SkyBox class
+x build cube object
+	x create new SkyBox class
 		x hardcode vertices
 		x hardcode paths to faces images
 		x load()
 			x loadVBOs()
 			x loadVAO()
 			x loadTextures()
-		- generateUniforms()
+		x generateUniforms()
 			x generate texture uniform
-			- generate view and projection matrices to force the skybox to follow the camera
+			x remove translation component from view matrix to force the skybox to follow the camera
 		x draw()
 			x disable depth mask
 			x bind VAO
@@ -45,7 +45,7 @@ Control Parameters of Noise Functions with UI
 
 =========================================================================
 Code Cleanup and Organization
-- move terrain mesh loading and VAO attaching to TerrainMesh class
+x move terrain mesh loading and VAO attaching to TerrainMesh class
 		x load()
 			x load VBOs and EBOs
 			x load textures

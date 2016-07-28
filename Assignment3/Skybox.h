@@ -98,12 +98,15 @@ void Skybox::load()
 
 	std::string basePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\";
 	faceTexturePaths = {
-		basePath + "skybox-front.png",
+		
 		basePath + "skybox-left.png",
-		basePath + "skybox-right.png",
+		basePath + "skybox-right.png",		
+
 		basePath + "skybox-top.png",
 		basePath + "skybox-bottom.png",
+
 		basePath + "skybox-back.png",
+		basePath + "skybox-front.png",
 	};
 
 	loadVBOs();	
