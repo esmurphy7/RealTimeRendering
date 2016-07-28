@@ -90,6 +90,12 @@ void Skybox::load()
 		1.0f, -1.0f,  1.0f
 	};
 
+	// scale vertices
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i] *= 100.0;
+	}
+
 	std::string basePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\";
 	faceTexturePaths = {
 		basePath + "skybox-front.png",

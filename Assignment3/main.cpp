@@ -237,7 +237,10 @@ extern "C" int main(int argc, char* argv[])
 		GLuint iSkyBoxProjectionLoc = glGetUniformLocation(*skyboxShaderId, "iProjection");
 		if (iSkyBoxViewLoc != -1)
 		{
-			glUniformMatrix4fv(iSkyBoxViewLoc, 1, GL_FALSE, &View[0][0]);
+			// remove the translation component of the view matrix
+			// to make sure the skybox's origin is always at the camera
+			glm::mat4 newView = glm::mat4(glm::mat3(View));
+			glUniformMatrix4fv(iSkyBoxViewLoc, 1, GL_FALSE, &newView[0][0]);
 		}
 		if (iSkyBoxProjectionLoc != -1)
 		{
