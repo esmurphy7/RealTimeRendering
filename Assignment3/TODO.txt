@@ -10,8 +10,7 @@ Skybox
 			x loadTextures()
 		- draw()
 			x disable depth mask
-			- use separate shader?
-			- bind texture?
+			- set skybox shader as active shader
 			x bind VAO
 			x draw vertices as triangles
 			x unbind VAO
@@ -19,13 +18,14 @@ Skybox
 
 - use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/Cubemaps, http://stackoverflow.com/questions/26474588/opengl-cube-map-texture-no-uv-mapping
 	- load texture for each face of the cube with glTexImage2D()
-	- set cubemap filtering and wrapping methods
-	- bind the texture to a separate skyboxVAO
-	- generate uniform reference and pass to shader
-		- set preamble
-		- use same texture channel as used to load it
-	- sample from "samplerCube" uniform in fragment shader
-	- in vShader, instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side	
+		- properly order list of faces texture paths such that the each image is on the correct face of the cube
+	x set cubemap filtering and wrapping methods
+	x bind the texture to a separate skyboxVAO
+	x generate uniform reference and pass to shader
+		x set preamble
+		x use same texture channel as used to load it
+	x sample from "samplerCube" uniform in fragment shader
+	x in vShader, instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side	
 
 =========================================================================
 Control Parameters of Noise Functions with UI
@@ -50,7 +50,7 @@ Code Cleanup and Organization
 		x attach(int attribute, GLuint vao)
 			x attach VBOs and EBOs to vao at attribute
 		- draw()
-			- bind texture?
+			- set a3 shaders as active shaders
 			x bind VAO to graphics pipeline
 			x disable attribute
 			x unbind VAO

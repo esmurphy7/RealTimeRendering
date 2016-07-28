@@ -230,7 +230,7 @@ extern "C" int main(int argc, char* argv[])
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		//terrainMesh.draw();
-		skyBox.draw(shaderId);
+		skyBox.draw();
 
 		// check for errors
 		GLenum err;
