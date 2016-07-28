@@ -18,9 +18,9 @@ x build cube object
 			x unbind VAO
 			x enable depth mask back			
 
-- use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/Cubemaps, http://stackoverflow.com/questions/26474588/opengl-cube-map-texture-no-uv-mapping
-	- load texture for each face of the cube with glTexImage2D()
-		- properly order list of faces texture paths such that the each image is on the correct face of the cube
+x use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/Cubemaps, http://stackoverflow.com/questions/26474588/opengl-cube-map-texture-no-uv-mapping
+	x load texture for each face of the cube with glTexImage2D()
+		x properly order list of faces texture paths such that the each image is on the correct face of the cube
 	x set cubemap filtering and wrapping methods
 	x bind the texture to a separate skyboxVAO
 	x generate uniform reference and pass to shader

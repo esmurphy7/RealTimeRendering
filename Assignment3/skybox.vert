@@ -5,6 +5,6 @@ out vec3 TexCoords;
 
 void main()
 {
-    gl_Position =   iProjection * iView * vec4(skyBoxPosition_modelspace, 1.0);  
+    gl_Position = iProjection * iView * vec4(skyBoxPosition_modelspace, 1.0);  
     TexCoords = skyBoxPosition_modelspace;
 } 
