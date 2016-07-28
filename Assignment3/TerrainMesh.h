@@ -177,7 +177,7 @@ void TerrainMesh::generateTextureUniform(GLuint* shaderId, std::string uniformNa
 	{
 		glActiveTexture(textureChannel);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
-		glUniform1i(iTextureArraySamplerLoc, textureChannel);
+		glUniform1i(iTextureArraySamplerLoc, textureChannel - GL_TEXTURE0);
 	}
 }
 
@@ -343,6 +343,7 @@ void TerrainMesh::loadTextures()
 	// generate and bind texture object
 	textureArrayId = 0;
 	glGenTextures(1, &textureArrayId);
+	glActiveTexture(textureChannel);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 
 	glTexImage3D(

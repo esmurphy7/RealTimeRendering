@@ -30,6 +30,8 @@
     <None Include="a3.vert" />
     <None Include="a3.frag" />
     <None Include="heightmap.ppm" />
+    <None Include="skybox.vert" />
+    <None Include="skybox.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="tiles\grass.tga" />

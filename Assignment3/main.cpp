@@ -78,10 +78,10 @@ extern "C" int main(int argc, char* argv[])
 
 	//===================== VBO/EBO ===============================
 	Skybox skyBox = Skybox();
-	//skyBox.load();
+	skyBox.load();
 
 	TerrainMesh terrainMesh = TerrainMesh(64, 64, 0.0);
-	terrainMesh.load();
+	//terrainMesh.load();
 
 	
 	//============================================================
@@ -106,7 +106,8 @@ extern "C" int main(int argc, char* argv[])
 	);
 
 	// define shader program from vertex and fragment shader files
-	GLuint* shaderId = shaders.AddProgramFromExts({ "a3.vert", "a3.frag" });
+	//GLuint* shaderId = shaders.AddProgramFromExts({ "a3.vert", "a3.frag" });
+	GLuint* shaderId = shaders.AddProgramFromExts({ "skybox.vert", "skybox.frag" });
 	//============================================================
 
 	//======================== LIGHTS ============================
@@ -156,23 +157,33 @@ extern "C" int main(int argc, char* argv[])
 		// Our ModelViewProjection : multiplication of our 3 matrices
 		glm::mat4 ModelViewProjection = Projection * View * Model; // Remember, matrix multiplication is the other way around
 		//glm::mat4 ModelViewProjection = MVP;
-		//============================================================
+		//============================================================		
 
 		//================== UPDATE SHADERS ==========================
 		// Recompile/relink any programs that changed (must be called)
 		shaders.UpdatePrograms();
 
+		// set OpenGL's shader program (must be called in loop)
+		glUseProgram(*shaderId);
+
 		// get uniform handles
 		GLuint iModelViewProjectionLoc = glGetUniformLocation(*shaderId, "iModelViewProjection");
 		GLuint iModelLoc = glGetUniformLocation(*shaderId, "iModel");
 		GLuint iViewLoc = glGetUniformLocation(*shaderId, "iView");		
-		GLuint iLightPosition_worldspaceLoc = glGetUniformLocation(*shaderId, "iLightPosition_worldspace");
+		GLuint iLightPosition_worldspaceLoc = glGetUniformLocation(*shaderId, "iLightPosition_worldspace");		
 
 		// send matrix uniforms to shader
 		if (iModelViewProjectionLoc != -1)
 		{
 			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
 		}
+
+		// check for errors
+		GLenum err1;
+		while ((err1 = glGetError()) != GL_NO_ERROR) {
+			std::cerr << "OpenGL error: " << err1 << std::endl;
+		}
+
 		if (iModelLoc != -1)
 		{
 			glUniformMatrix4fv(iModelLoc, 1, GL_FALSE, &Model[0][0]);
@@ -180,20 +191,19 @@ extern "C" int main(int argc, char* argv[])
 		if (iViewLoc != -1)
 		{
 			glUniformMatrix4fv(iViewLoc, 1, GL_FALSE, &View[0][0]);
-		}		
+		}						
 
 		// pass light position uniform to shader
 		if (iLightPosition_worldspaceLoc != -1) 
 		{
 			glUniform3f(iLightPosition_worldspaceLoc, light.x, light.y, light.z);
-		}		
+		}				
 
 		// generate uniforms for object textures
-		terrainMesh.generateTextureUniform(shaderId, "iTextureArray");
-		//skyBox.generateTextureUniform(shaderId, "iSkyBoxCubeTexture");
+		//terrainMesh.generateTextureUniform(shaderId, "iTextureArray");
+		skyBox.generateTextureUniform(shaderId, "iSkyBoxCubeTexture");
 
-		// set OpenGL's shader program (must be called in loop)
-		glUseProgram(*shaderId);
+		
 		//============================================================
 		
         // Set the color to clear with
@@ -209,17 +219,24 @@ extern "C" int main(int argc, char* argv[])
 		// Accept fragment if it closer to the camera than the former one
 		glDepthFunc(GL_LESS);
 		//============================================================
+		
 
 		//================ VAO ATTRIBUTES ===========================
-		terrainMesh.attachToVAO(0, 1, 2, 3);
-		//skyBox.attachToVAO(4);			
+		//terrainMesh.attachToVAO(0, 1, 2, 3);
+		skyBox.attachToVAO(4);			
 		//============================================================	
 
 		// draw wireframe of mesh
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		terrainMesh.draw();
-		//skyBox.draw();		
+		//terrainMesh.draw();
+		skyBox.draw(shaderId);
+
+		// check for errors
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR) {
+			std::cerr << "OpenGL error: " << err << std::endl;
+		}
 
 		// disable the depth buffer
 		glDisable(GL_DEPTH_TEST);

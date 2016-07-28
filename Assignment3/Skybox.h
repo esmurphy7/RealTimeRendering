@@ -140,7 +140,7 @@ void Skybox::generateTextureUniform(GLuint* shaderId, std::string uniformName)
 	{
 		glActiveTexture(textureChannel);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-		glUniform1i(iSkyBoxCubeSamplerLoc, textureChannel);
+		glUniform1i(iSkyBoxCubeSamplerLoc, textureChannel - GL_TEXTURE0);
 	}
 }
 
@@ -196,6 +196,12 @@ void Skybox::loadTextures()
 	// bind the texture
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
+	// check for errors
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cerr << "OpenGL error: " << err << std::endl;
+	}
+
 	// load each face texture from image files and upload them to opengl
 	for (int i = 0; i < faceTexturePaths.size(); i++)
 	{
@@ -223,15 +229,24 @@ void Skybox::loadTextures()
 			GL_RGBA,
 			GL_UNSIGNED_BYTE,
 			pixels
-		);
+		);		
+
+		// check for errors
+		GLenum err1;
+		while ((err1 = glGetError()) != GL_NO_ERROR) {
+			std::cerr << "OpenGL error: " << err1 << std::endl;
+		}
 
 		// set filtering and wrapping parameters
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);		
 	}
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void Skybox::disableAttributes()

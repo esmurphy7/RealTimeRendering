@@ -108,6 +108,8 @@
     <None Include="a3.vert" />
     <None Include="heightmap.ppm" />
     <None Include="SDL2.dll" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="tiles\grass.tga" />
