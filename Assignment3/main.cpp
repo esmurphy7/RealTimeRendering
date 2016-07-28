@@ -81,7 +81,7 @@ extern "C" int main(int argc, char* argv[])
 	skyBox.load();
 
 	TerrainMesh terrainMesh = TerrainMesh(64, 64, 0.0);
-	//terrainMesh.load();
+	terrainMesh.load();
 
 	
 	//============================================================
@@ -91,23 +91,32 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//======================= SHADERS ============================
-	// init shaderset construct
-	ShaderSet shaders;
-	shaders.SetVersion("330");
+	// init terrain shader
+	ShaderSet terrainShaderSet;
+	terrainShaderSet.SetVersion("330");
 
 	// set uniforms (use preambles here or define them in the shader file, but NOT both)
-	shaders.SetPreamble(
+	terrainShaderSet.SetPreamble(
 		"uniform mat4 iModelViewProjection;\n"
 		"uniform mat4 iModel;\n"
 		"uniform mat4 iView;\n"
 		"uniform vec3 iLightPosition_worldspace;\n"
 		"uniform sampler2DArray iTextureArray;\n"
+	);
+	GLuint* terrainShaderId = terrainShaderSet.AddProgramFromExts({ "a3.vert", "a3.frag" });
+
+
+	// init skybox shader
+	ShaderSet skyboxShaderSet;
+	skyboxShaderSet.SetVersion("330");
+
+	// set uniforms (use preambles here or define them in the shader file, but NOT both)
+	skyboxShaderSet.SetPreamble(
+		"uniform mat4 iProjection;\n"
+		"uniform mat4 iView;\n"
 		"uniform samplerCube iSkyBoxCubeTexture;\n"
 	);
-
-	// define shader program from vertex and fragment shader files
-	//GLuint* shaderId = shaders.AddProgramFromExts({ "a3.vert", "a3.frag" });
-	GLuint* shaderId = shaders.AddProgramFromExts({ "skybox.vert", "skybox.frag" });
+	GLuint* skyboxShaderId = skyboxShaderSet.AddProgramFromExts({ "skybox.vert", "skybox.frag" });
 	//============================================================
 
 	//======================== LIGHTS ============================
@@ -160,28 +169,37 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================		
 
 		//================== UPDATE SHADERS ==========================
+		// Set the color to clear with
+		//glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//===================== Z-BUFFER =============================
+		// Enable depth test
+		glEnable(GL_DEPTH_TEST);
+		// Accept fragment if it closer to the camera than the former one
+		glDepthFunc(GL_LESS);
+
+
+		// TERRAIN ======================================================
 		// Recompile/relink any programs that changed (must be called)
-		shaders.UpdatePrograms();
+		terrainShaderSet.UpdatePrograms();
 
 		// set OpenGL's shader program (must be called in loop)
-		glUseProgram(*shaderId);
+		glUseProgram(*terrainShaderId);
 
 		// get uniform handles
-		GLuint iModelViewProjectionLoc = glGetUniformLocation(*shaderId, "iModelViewProjection");
-		GLuint iModelLoc = glGetUniformLocation(*shaderId, "iModel");
-		GLuint iViewLoc = glGetUniformLocation(*shaderId, "iView");		
-		GLuint iLightPosition_worldspaceLoc = glGetUniformLocation(*shaderId, "iLightPosition_worldspace");		
+		GLuint iModelViewProjectionLoc = glGetUniformLocation(*terrainShaderId, "iModelViewProjection");
+		GLuint iModelLoc = glGetUniformLocation(*terrainShaderId, "iModel");
+		GLuint iViewLoc = glGetUniformLocation(*terrainShaderId, "iView");
+		GLuint iLightPosition_worldspaceLoc = glGetUniformLocation(*terrainShaderId, "iLightPosition_worldspace");
 
 		// send matrix uniforms to shader
 		if (iModelViewProjectionLoc != -1)
 		{
 			glUniformMatrix4fv(iModelViewProjectionLoc, 1, GL_FALSE, &ModelViewProjection[0][0]);
-		}
-
-		// check for errors
-		GLenum err1;
-		while ((err1 = glGetError()) != GL_NO_ERROR) {
-			std::cerr << "OpenGL error: " << err1 << std::endl;
 		}
 
 		if (iModelLoc != -1)
@@ -199,43 +217,49 @@ extern "C" int main(int argc, char* argv[])
 			glUniform3f(iLightPosition_worldspaceLoc, light.x, light.y, light.z);
 		}				
 
-		// generate uniforms for object textures
-		//terrainMesh.generateTextureUniform(shaderId, "iTextureArray");
-		skyBox.generateTextureUniform(shaderId, "iSkyBoxCubeTexture");
+		terrainMesh.generateTextureUniform(terrainShaderId, "iTextureArray");
 
-		
-		//============================================================
-		
-        // Set the color to clear with
-        //glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		terrainMesh.attachToVAO(0, 1, 2, 3);
 
-        // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		terrainMesh.draw();
 
-		//===================== Z-BUFFER =============================
-		// Enable depth test
-		glEnable(GL_DEPTH_TEST);
-		// Accept fragment if it closer to the camera than the former one
-		glDepthFunc(GL_LESS);
-		//============================================================
-		
 
-		//================ VAO ATTRIBUTES ===========================
-		//terrainMesh.attachToVAO(0, 1, 2, 3);
-		skyBox.attachToVAO(4);			
-		//============================================================	
 
-		// draw wireframe of mesh
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// SKYBOX ========================================================
+		// Recompile/relink any programs that changed (must be called)
+		skyboxShaderSet.UpdatePrograms();
 
-		//terrainMesh.draw();
+		// set OpenGL's shader program (must be called in loop)
+		glUseProgram(*skyboxShaderId);
+
+		// get skybox shader uniform handles
+		GLuint iSkyBoxViewLoc = glGetUniformLocation(*skyboxShaderId, "iView");
+		GLuint iSkyBoxProjectionLoc = glGetUniformLocation(*skyboxShaderId, "iProjection");
+		if (iSkyBoxViewLoc != -1)
+		{
+			glUniformMatrix4fv(iSkyBoxViewLoc, 1, GL_FALSE, &View[0][0]);
+		}
+		if (iSkyBoxProjectionLoc != -1)
+		{
+			glUniformMatrix4fv(iSkyBoxProjectionLoc, 1, GL_FALSE, &Projection[0][0]);
+		}
+
+		// generate uniforms for object textures		
+		skyBox.generateTextureUniform(skyboxShaderId, "iSkyBoxCubeTexture");
+
+		skyBox.attachToVAO(4);
+
 		skyBox.draw();
 
+
+		// draw wireframe of mesh
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);		
+		
+
 		// check for errors
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR) {
-			std::cerr << "OpenGL error: " << err << std::endl;
+		GLenum err2;
+		while ((err2 = glGetError()) != GL_NO_ERROR) {
+			std::cerr << "OpenGL error: " << err2 << std::endl;
 		}
 
 		// disable the depth buffer

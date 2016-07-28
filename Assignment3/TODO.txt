@@ -8,9 +8,11 @@ Skybox
 			x loadVBOs()
 			x loadVAO()
 			x loadTextures()
-		- draw()
+		- generateUniforms()
+			x generate texture uniform
+			- generate view and projection matrices to force the skybox to follow the camera
+		x draw()
 			x disable depth mask
-			- set skybox shader as active shader
 			x bind VAO
 			x draw vertices as triangles
 			x unbind VAO
@@ -49,8 +51,7 @@ Code Cleanup and Organization
 			x load textures
 		x attach(int attribute, GLuint vao)
 			x attach VBOs and EBOs to vao at attribute
-		- draw()
-			- set a3 shaders as active shaders
+		x draw()
 			x bind VAO to graphics pipeline
 			x disable attribute
 			x unbind VAO
