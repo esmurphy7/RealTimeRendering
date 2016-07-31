@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "TerrainMesh.h"
 #include "Skybox.h"
+#include "CubicBezierCurve.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 960
@@ -122,11 +123,20 @@ extern "C" int main(int argc, char* argv[])
 	//======================== LIGHTS ============================
 	glm::vec3 light = glm::vec3(4, 40, 4);
 	//============================================================
+
+	//================== BEZIER CURVES ===========================
+	glm::vec3 p0 = glm::vec3(0, 0, 0);
+	glm::vec3 p1 = glm::vec3(0, 10.0, 0);
+	glm::vec3 p2 = glm::vec3(10.0, 10.0, 0);
+	glm::vec3 p3 = glm::vec3(10.0, 0, 0);
+	CubicBezierCurve bezierCurve = CubicBezierCurve(p0, p1, p2, p3);
+	//============================================================
 	
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
 	Camera camera = Camera(4, 40, 4);
+	float t = 0.0;
     while (1)
     {			
 		//================= UPDATE USER INPUT ========================
@@ -143,6 +153,15 @@ extern "C" int main(int argc, char* argv[])
 		//============================================================
 
 		//================= COMPUTE MATRICES =========================
+		// move camera position along bezier curve		
+		glm::vec3 bezPos = bezierCurve.getPointAt(t);
+		t += 0.001;
+		t = (t > 1.0) ? 0.0 : t;
+		camera.position = bezPos;
+
+		//DEBUG: print t and bezier position
+		std::cout << "t: " << t << ", " << "BezPos: " << bezPos.x << ", " << bezPos.y << ", " << bezPos.z << std::endl;
+
 		// Projection matrix
 		glm::mat4 Projection = glm::perspective(
 			camera.FoV,

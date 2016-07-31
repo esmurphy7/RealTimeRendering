@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CubicBezierCurve.h" />
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="opengl.h" />

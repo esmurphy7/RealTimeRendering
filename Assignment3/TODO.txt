@@ -32,10 +32,15 @@ x use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/C
 =========================================================================
 Move Camera Along Bezier Curve
 - create CubicBezierCurve class
-	- defined by 3d points A, B, C, D
-	- getPointAt(float t)
-		- returns a point along the bezier curve at time t
+	x defined by 3d points A, B, C, D
+	x getPointAt(float t)
+		x returns a point along the bezier curve at time t
+	- get/set control point methods
 - reposition the camera at points along the bezier curve every frame
+	- ignore keyboard input that adjusts the camera's position
+	- tweak speed of camera movement
+	- choose points that are a desireable distance from terrain
+	- combine bezier curves to create longer camera paths
 
 =========================================================================
 Generate Heights on the GPU
