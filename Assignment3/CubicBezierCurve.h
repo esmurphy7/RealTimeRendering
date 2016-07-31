@@ -1,11 +1,11 @@
 #include <glm\glm.hpp>
 
 class CubicBezierCurve
-{
-private:
-	glm::vec3 p0, p1, p2, p3;
+{	
 
 public:
+	glm::vec3 p0, p1, p2, p3;
+
 	CubicBezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 	glm::vec3 getPointAt(float t);
 
@@ -27,10 +27,10 @@ glm::vec3 CubicBezierCurve::getPointAt(float t)
 	float uuu = uu * u;
 	float ttt = tt * t;
 
-	glm::vec3 p = uuu * p0; //first term
-	p += 3 * uu * t * p1; //second term
-	p += 3 * u * tt * p2; //third term
-	p += ttt * p3; //fourth term
+	glm::vec3 p = uuu * p0;
+	p += 3 * uu * t * p1; 
+	p += 3 * u * tt * p2; 
+	p += ttt * p3;
 
 	return p;
 }

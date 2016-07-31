@@ -87,6 +87,7 @@
     <ClCompile Include="tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BezierPath.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CubicBezierCurve.h" />
     <ClInclude Include="HeightMap.h" />

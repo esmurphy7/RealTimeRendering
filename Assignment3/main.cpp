@@ -16,6 +16,7 @@
 #include "TerrainMesh.h"
 #include "Skybox.h"
 #include "CubicBezierCurve.h"
+#include "BezierPath.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 960
@@ -125,18 +126,48 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//================== BEZIER CURVES ===========================
-	glm::vec3 p0 = glm::vec3(0, 0, 0);
-	glm::vec3 p1 = glm::vec3(0, 10.0, 0);
-	glm::vec3 p2 = glm::vec3(10.0, 10.0, 0);
-	glm::vec3 p3 = glm::vec3(10.0, 0, 0);
-	CubicBezierCurve bezierCurve = CubicBezierCurve(p0, p1, p2, p3);
+	const float curveLength = 32.0;
+	const float curvePull = 10.0;
+
+	glm::vec3 p0 = glm::vec3(4, 40, 4);
+	glm::vec3 p1 = p0;
+	p1.y += curvePull;
+	glm::vec3 p3 = p0;
+	p3.x += curveLength;
+	p3.z += curveLength;
+	glm::vec3 p2 = p3;
+	p2.y += curvePull;	
+	CubicBezierCurve bezierCurve1 = CubicBezierCurve(p0, p1, p2, p3);
+
+	glm::vec3 p4 = p3;
+	glm::vec3 p5 = p4;
+	p5.y -= curvePull;
+	glm::vec3 p7 = p4;
+	p7.x += curveLength;
+	p7.z += curveLength;
+	glm::vec3 p6 = p7;
+	p6.y -= curvePull;
+	CubicBezierCurve bezierCurve2 = CubicBezierCurve(p4, p5, p6, p7);
+
+	glm::vec3 p8 = p7;
+	glm::vec3 p9 = p8;
+	p9.x += curvePull;
+	glm::vec3 p11 = p8;
+	p11.x -= curveLength;
+	p11.z -= curveLength;
+	glm::vec3 p10 = p11;
+	p10.x += curvePull;
+	CubicBezierCurve bezierCurve3 = CubicBezierCurve(p8, p9, p10, p11);
+	
+	BezierPath bezierPath = BezierPath(std::vector<CubicBezierCurve>{ bezierCurve1, bezierCurve2, bezierCurve3 });
 	//============================================================
 	
     // Begin main loop
 	double lastTime = 0;
 	InputHandler inputHandler = InputHandler(window);
 	Camera camera = Camera(4, 40, 4);
-	float t = 0.0;
+	float bezierTime = 0.0;
+	const float bezierSpeed = 0.001;
     while (1)
     {			
 		//================= UPDATE USER INPUT ========================
@@ -154,13 +185,10 @@ extern "C" int main(int argc, char* argv[])
 
 		//================= COMPUTE MATRICES =========================
 		// move camera position along bezier curve		
-		glm::vec3 bezPos = bezierCurve.getPointAt(t);
-		t += 0.001;
-		t = (t > 1.0) ? 0.0 : t;
+		glm::vec3 bezPos = bezierPath.getPointAt(bezierTime);
+		bezierTime += bezierSpeed;
+		bezierTime = (bezierTime > 1.0) ? 0.0 : bezierTime;
 		camera.position = bezPos;
-
-		//DEBUG: print t and bezier position
-		std::cout << "t: " << t << ", " << "BezPos: " << bezPos.x << ", " << bezPos.y << ", " << bezPos.z << std::endl;
 
 		// Projection matrix
 		glm::mat4 Projection = glm::perspective(
