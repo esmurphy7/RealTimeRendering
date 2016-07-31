@@ -30,6 +30,19 @@ x use CubeMap to texture the skybox - http://learnopengl.com/#!Advanced-OpenGL/C
 	x in vShader, instead of using UV coords to sample CubeMap, use a vector from origin of cube to a point on a side	
 
 =========================================================================
+Move Camera Along Bezier Curve
+- create CubicBezierCurve class
+	- defined by 3d points A, B, C, D
+	- getPointAt(float t)
+		- returns a point along the bezier curve at time t
+- reposition the camera at points along the bezier curve every frame
+
+=========================================================================
+Generate Heights on the GPU
+- create perlin noise function in vShader
+- create fbm function in vShader
+
+=========================================================================
 Control Parameters of Noise Functions with UI
 - download and integrate ImGUI
 - design UI
@@ -42,6 +55,11 @@ Control Parameters of Noise Functions with UI
 	- accept noise parameters in constructor
 	- use noise parameters in underlying noise function
 	- return pointer to noise function in getNoiseFunction()
+
+=========================================================================
+Generate Heightmap by Recursively Computing Noise for Grid Sections
+- write recursive generate() function in HeightMap
+	- take initial grid size, recursion depth, and grid section to recurse on as params
 
 =========================================================================
 Code Cleanup and Organization
