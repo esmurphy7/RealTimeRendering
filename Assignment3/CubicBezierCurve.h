@@ -6,17 +6,35 @@ class CubicBezierCurve
 public:
 	glm::vec3 p0, p1, p2, p3;
 
-	CubicBezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+	CubicBezierCurve(glm::vec3 start, glm::vec3 length, glm::vec3 startPull, glm::vec3 endPull);
+	CubicBezierCurve(std::vector<glm::vec3> controlPoints);
 	glm::vec3 getPointAt(float t);
 
 };
 
-CubicBezierCurve::CubicBezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
+CubicBezierCurve::CubicBezierCurve(glm::vec3 start, glm::vec3 length, glm::vec3 startPull, glm::vec3 endPull)
 {
-	this->p0 = p0;
-	this->p1 = p1;
-	this->p2 = p2;
-	this->p3 = p3;
+	p0 = start;
+	p1 = p0;
+	p1 += startPull;
+	p3 = p0;
+	p3 += length;
+	p2 = p3;
+	p2 += endPull;
+}
+
+CubicBezierCurve::CubicBezierCurve(std::vector<glm::vec3> controlPoints)
+{
+	if (controlPoints.size() != 4)
+	{
+		std::cout << "Cannot create CubicBezierCurve from " << controlPoints.size() << " control points" << std::endl;
+		return;
+	}
+
+	p0 = controlPoints.at(0);
+	p1 = controlPoints.at(1);
+	p2 = controlPoints.at(2);
+	p3 = controlPoints.at(3);
 }
 
 glm::vec3 CubicBezierCurve::getPointAt(float t)

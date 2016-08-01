@@ -46,10 +46,10 @@ x reposition the camera at points along the bezier curve every frame
 			x getPointAt(float t)
 				x choose which besier curve to traverse based on value of t
 
-- construct more complex bezier path that is good for demo
-	- 4 curves that traverse across the terrain diagonally
+x construct more complex bezier path that is good for demo
+	x 4 curves that traverse across the terrain diagonally
 
-- redesign CubicBezierCurve class to accept origin, pull, and length params as well
+x redesign CubicBezierCurve class to accept origin, pull, and length params as well
 
 =========================================================================
 Generate Heights on the GPU

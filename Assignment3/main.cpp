@@ -126,40 +126,16 @@ extern "C" int main(int argc, char* argv[])
 	//============================================================
 
 	//================== BEZIER CURVES ===========================
-	const float curveLength = 32.0;
-	const float curvePull = 10.0;
+	glm::vec3 xzLength = glm::vec3(32.0, 0.0, 32.0);
+	glm::vec3 yPull = glm::vec3(0.0, 20.0, 0.0);
+	glm::vec3 xPull = glm::vec3(20.0, 0.0, 0.0);
 
-	glm::vec3 p0 = glm::vec3(4, 40, 4);
-	glm::vec3 p1 = p0;
-	p1.y += curvePull;
-	glm::vec3 p3 = p0;
-	p3.x += curveLength;
-	p3.z += curveLength;
-	glm::vec3 p2 = p3;
-	p2.y += curvePull;	
-	CubicBezierCurve bezierCurve1 = CubicBezierCurve(p0, p1, p2, p3);
-
-	glm::vec3 p4 = p3;
-	glm::vec3 p5 = p4;
-	p5.y -= curvePull;
-	glm::vec3 p7 = p4;
-	p7.x += curveLength;
-	p7.z += curveLength;
-	glm::vec3 p6 = p7;
-	p6.y -= curvePull;
-	CubicBezierCurve bezierCurve2 = CubicBezierCurve(p4, p5, p6, p7);
-
-	glm::vec3 p8 = p7;
-	glm::vec3 p9 = p8;
-	p9.x += curvePull;
-	glm::vec3 p11 = p8;
-	p11.x -= curveLength;
-	p11.z -= curveLength;
-	glm::vec3 p10 = p11;
-	p10.x += curvePull;
-	CubicBezierCurve bezierCurve3 = CubicBezierCurve(p8, p9, p10, p11);
+	CubicBezierCurve bezierCurve1 = CubicBezierCurve(light, xzLength, yPull, yPull);
+	CubicBezierCurve bezierCurve2 = CubicBezierCurve(bezierCurve1.p3, xzLength, -yPull, -yPull);
+	CubicBezierCurve bezierCurve3 = CubicBezierCurve(bezierCurve2.p3, -xzLength, xPull, xPull);
+	CubicBezierCurve bezierCurve4 = CubicBezierCurve(bezierCurve3.p3, -xzLength, -xPull, -xPull);
 	
-	BezierPath bezierPath = BezierPath(std::vector<CubicBezierCurve>{ bezierCurve1, bezierCurve2, bezierCurve3 });
+	BezierPath bezierPath = BezierPath(std::vector<CubicBezierCurve>{ bezierCurve1, bezierCurve2, bezierCurve3, bezierCurve4 });
 	//============================================================
 	
     // Begin main loop
