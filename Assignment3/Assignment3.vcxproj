@@ -116,6 +116,13 @@
     <Image Include="tiles\grass.tga" />
     <Image Include="tiles\rock.tga" />
     <Image Include="tiles\sand.tga" />
+    <Image Include="tiles\skybox-back.png" />
+    <Image Include="tiles\skybox-bottom.png" />
+    <Image Include="tiles\skybox-front.png" />
+    <Image Include="tiles\skybox-left.png" />
+    <Image Include="tiles\skybox-right.png" />
+    <Image Include="tiles\skybox-top.png" />
+    <Image Include="tiles\skybox.jpg" />
     <Image Include="tiles\snow.tga" />
     <Image Include="tiles\water.tga" />
   </ItemGroup>

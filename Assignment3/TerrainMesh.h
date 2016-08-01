@@ -331,12 +331,13 @@ void TerrainMesh::loadTextures()
 	const unsigned int TextureHeight = 512;
 
 	// initialize set of texture paths
+	std::string basePath = "tiles\\";
 	std::vector<std::string> texturePaths = {
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\snow.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\rock.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\sand.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\grass.tga",
-		"C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\water.tga",
+		basePath + "snow.tga",
+		basePath + "rock.tga",
+		basePath + "sand.tga",
+		basePath + "grass.tga",
+		basePath + "water.tga",
 	};
 
 	// generate and bind texture object

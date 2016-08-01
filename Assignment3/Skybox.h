@@ -96,7 +96,7 @@ void Skybox::load()
 		vertices[i] *= 100.0;
 	}
 
-	std::string basePath = "C:\\Users\\Evan\\Documents\\Visual Studio 2015\\Projects\\RealTimeExamples\\Assignment3\\tiles\\";
+	std::string basePath = "tiles\\";
 	faceTexturePaths = {
 		
 		basePath + "skybox-left.png",
