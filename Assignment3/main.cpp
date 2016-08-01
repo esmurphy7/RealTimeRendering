@@ -161,10 +161,10 @@ extern "C" int main(int argc, char* argv[])
 
 		//================= COMPUTE MATRICES =========================
 		// move camera position along bezier curve		
-		glm::vec3 bezPos = bezierPath.getPointAt(bezierTime);
+		/*glm::vec3 bezPos = bezierPath.getPointAt(bezierTime);
 		bezierTime += bezierSpeed;
 		bezierTime = (bezierTime > 1.0) ? 0.0 : bezierTime;
-		camera.position = bezPos;
+		camera.position = bezPos;*/
 
 		// Projection matrix
 		glm::mat4 Projection = glm::perspective(

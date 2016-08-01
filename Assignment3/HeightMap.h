@@ -138,18 +138,18 @@ void HeightMap::generate()
 		{
 			// generate color and store as texture data
 			//float R = perlinNoise.noise(float(x), float(z), 0.8);
-			/*float R = fBm(
+			float R = fBm(
 				glm::vec2(float(x), float(z)),
 				2.0,
 				2.0,
-				11
-			);*/
-			float R = HybridMultifractal(
+				2
+			);
+			/*float R = HybridMultifractal(
 				glm::vec2(float(x), float(z)),
 				1.0,
 				2.0,
 				11,
-				0.0);
+				0.0);*/
 			rgbData.push_back(glm::vec3(R, baseColor.g, baseColor.b));
 		}
 	}
