@@ -385,23 +385,23 @@ std::vector<unsigned char> HeightMap::getAsByteVector(GLint format)
 	for (int i = 0; i < rgbData.size(); i++)
 	{
 		glm::vec3 color = rgbData.at(i);
-		int rByte = int(255*color.r);		
-		rgbBytes.push_back(reinterpret_cast<unsigned char>(&rByte));
+		uint8_t rByte = uint8_t(255*color.r);
+		rgbBytes.push_back(rByte);
 		
 		// make sure that the red channel wasn't specifically requested
 		if (format != GL_RED)
 		{
-			int gByte = int(255 * color.g);
-			int bByte = int(255 * color.b);
-			rgbBytes.push_back(reinterpret_cast<unsigned char>(&gByte));
-			rgbBytes.push_back(reinterpret_cast<unsigned char>(&bByte));
+			uint8_t gByte = uint8_t(255 * color.g);
+			uint8_t bByte = uint8_t(255 * color.b);
+			rgbBytes.push_back(gByte);
+			rgbBytes.push_back(bByte);
 		}
 
 		// check if alpha format requested
 		if (format == GL_RGBA)
 		{
-			int aByte = 255;
-			rgbBytes.push_back(reinterpret_cast<unsigned char>(&aByte));
+			uint8_t aByte = 255;
+			rgbBytes.push_back(aByte);
 		}		
 	}
 	return rgbBytes;
@@ -426,7 +426,8 @@ void HeightMap::saveToPNGFile(std::string filename)
 	int colorDepth = 3;
 	bool useRGBA = false;
 	int stride = WIDTH*colorDepth;
-	if (stbi_write_png(filename.c_str(), WIDTH, HEIGHT, colorDepth, getAsByteVector(GL_RGBA).data(), stride) == 0)
+	std::vector<unsigned char> pixels = getAsByteVector(GL_RGB);
+	if (stbi_write_png(filename.c_str(), WIDTH, HEIGHT, colorDepth, pixels.data(), stride) == 0)
 	{
 		std::cout << "Failed to write to: " << filename.c_str() << std::endl;
 		return;
