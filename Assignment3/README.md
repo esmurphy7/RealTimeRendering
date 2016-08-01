@@ -1,9 +1,10 @@
 # CSC 305 Assignment 3
 
 A demonstration of procedural terrain generation in OpenGL using coherent noise algorithms.
+
 [Assignment Description](https://github.com/ataiya/icg/wiki/Assignment%233a-Virtual-World)
 
-![Alt text](/screen.jpg?raw=true)
+![Hybrid Multifractal terrain](screen.jpg?raw=true)
 
 This project was developed as a single C++ project as part of a Visual Studio 2015 solution.
 
