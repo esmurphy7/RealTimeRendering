@@ -25,7 +25,7 @@ void main()
 
 	// assign heights for each texture
 	float range = 2.0;
-	float waterHeight = 0.0;
+	float waterHeight = -3.0;
 	float sandHeight = waterHeight + range;
 	float grassHeight = sandHeight + range;		
 	float rockHeight = grassHeight + range;

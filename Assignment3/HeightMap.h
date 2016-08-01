@@ -59,7 +59,7 @@ HeightMap::HeightMap(unsigned int width, unsigned int height, unsigned int seed)
 	heights2D = std::vector<std::vector<float>>(WIDTH, std::vector<float>(HEIGHT, 0));
 
 	generate();
-	//generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60, 1.0);
+	generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60, 1.0);
 	//generateTestHeightMap();
 }
 
@@ -302,7 +302,8 @@ float HeightMap::getHeightAt(int x, int y)
 	if (x >= WIDTH) x = WIDTH - 1;
 	if (y >= HEIGHT) y = HEIGHT - 1;
 
-	float height = rgbData.at(y * HEIGHT + x).r;
+	//float height = rgbData.at(y * HEIGHT + x).r;
+	float height = heights2D[x][y];
 	return height;
 }
 
@@ -335,7 +336,7 @@ std::vector<float> HeightMap::getAsFloatVector(GLint format)
 	
 	}
 
-	/*std::vector<float> heightMap = std::vector<float>();
+	std::vector<float> heightMap = std::vector<float>();
 	for (int z = 0; z < HEIGHT; z++)
 	{
 		for (int x = 0; x < WIDTH; x++)
@@ -344,30 +345,30 @@ std::vector<float> HeightMap::getAsFloatVector(GLint format)
 			heightMap.push_back(height);
 		}
 	}
-	return heightMap;*/
+	return heightMap;
 
-	// convert rgb data to float vector
-	std::vector<float> rgbFloats = std::vector<float>();
-	for (int i = 0; i < rgbData.size(); i++)
-	{
-		glm::vec3 color = rgbData.at(i);
-		rgbFloats.push_back(color.r);
+	//// convert rgb data to float vector
+	//std::vector<float> rgbFloats = std::vector<float>();
+	//for (int i = 0; i < rgbData.size(); i++)
+	//{
+	//	glm::vec3 color = rgbData.at(i);
+	//	rgbFloats.push_back(color.r);
 
-		// make sure that the red channel wasn't specifically requested
-		if (format != GL_RED)
-		{
-			rgbFloats.push_back(color.g);
-			rgbFloats.push_back(color.b);
-		}
+	//	// make sure that the red channel wasn't specifically requested
+	//	if (format != GL_RED)
+	//	{
+	//		rgbFloats.push_back(color.g);
+	//		rgbFloats.push_back(color.b);
+	//	}
 
-		// check if alpa format requested
-		if (format == GL_RGBA)
-		{
-			float alpha = 1.0;
-			rgbFloats.push_back(alpha);
-		}
-	}
-	return rgbFloats;
+	//	// check if alpa format requested
+	//	if (format == GL_RGBA)
+	//	{
+	//		float alpha = 1.0;
+	//		rgbFloats.push_back(alpha);
+	//	}
+	//}
+	//return rgbFloats;
 }
 
 std::vector<unsigned char> HeightMap::getAsByteVector(GLint format)
