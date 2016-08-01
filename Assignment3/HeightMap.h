@@ -58,9 +58,9 @@ HeightMap::HeightMap(unsigned int width, unsigned int height, unsigned int seed)
 
 	heights2D = std::vector<std::vector<float>>(WIDTH, std::vector<float>(HEIGHT, 0));
 
-	generate();
+	//generate();
 	//generateDiamondSquare(glm::vec2(0,0), WIDTH, HEIGHT, 60, 1.0);
-	//generateTestHeightMap();
+	generateTestHeightMap();
 }
 
 void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int width, unsigned int height, float hRange, float scale)
@@ -157,7 +157,7 @@ void HeightMap::generate()
 
 void HeightMap::generateTestHeightMap()
 {
-	float numSteps = 5;
+	/*float numSteps = 5;
 	for (int x = 0; x < WIDTH; x++)
 	{
 		int xRange = WIDTH / numSteps;
@@ -170,6 +170,16 @@ void HeightMap::generateTestHeightMap()
 			float zInterval = (1.0 / numSteps) / 2;
 			float zH = (zInterval * (z / zRange));
 
+			rgbData.push_back(glm::vec3(xH + zH, 0.0, 0.0));
+		}
+	}*/
+
+	for (int x = 0; x < WIDTH; x++)
+	{
+		float xH = float(x) / float(WIDTH) / 2;
+		for (int z = 0; z < HEIGHT; z++)
+		{
+			float zH = float(z) / float(HEIGHT) / 2;
 			rgbData.push_back(glm::vec3(xH + zH, 0.0, 0.0));
 		}
 	}
