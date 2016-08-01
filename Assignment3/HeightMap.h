@@ -2,7 +2,6 @@
 #include <vector>
 #include <iostream>
 #include "PPM_File.h"
-#include "SimplexNoise.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -133,13 +132,11 @@ void HeightMap::generateDiamondSquare(glm::vec2 topLeftCoords, unsigned int widt
 
 void HeightMap::generate()
 {	
-	SimplexNoise simplexNoise = SimplexNoise();
 	for (int z = 0; z < HEIGHT; z++)
 	{
 		for (int x = 0; x < WIDTH; x++)
 		{
 			// generate color and store as texture data
-			//float R = simplexNoise.fractal(3, float(x), float(z));
 			//float R = perlinNoise.noise(float(x), float(z), 0.8);
 			/*float R = fBm(
 				glm::vec2(float(x), float(z)),
@@ -178,15 +175,6 @@ void HeightMap::generateTestHeightMap()
 	}
 }
 
-/*
-* Procedural fBm evaluated at "point"; returns value stored in "value".
-*
-* Parameters:
-* "H" is the fractal increment
-* "lacunarity" is the gap between successive frequencies
-* "octaves" is the number of frequencies in the fBm
-* "Basis()" is usually Perlin noise
-*/
 double HeightMap::fBm(glm::vec2 point, double H, float lacunarity, float octaves)
 {
 	const int MAX_OCTAVES = 12;
@@ -194,85 +182,89 @@ double HeightMap::fBm(glm::vec2 point, double H, float lacunarity, float octaves
 	int i;
 	bool first = true;
 	double exponent_array[MAX_OCTAVES];
-	/* precompute and store spectral weights */
-	if (first) {
+	
+	if (first) 
+	{
 		frequency = 1.0;
-		for (i = 0; i<MAX_OCTAVES; i++) {
-			/* compute weight for each frequency */
+		for (i = 0; i<MAX_OCTAVES; i++)
+		{			
 			exponent_array[i] = pow(frequency, -H);
 			frequency *= lacunarity;
 		}
+
 		first = false;
 	}
+
 	value = 0.0;
-	/* inner loop of spectral construction */
-	for (i = 0; i<octaves; i++) {
+	for (i = 0; i<octaves; i++) 
+	{
 		value += perlinNoise.noise(point.x, point.y, 0.8) * exponent_array[i];
 		point.x *= lacunarity;
 		point.y *= lacunarity;
-	} /* for */
-	remainder = octaves - (int)octaves;
-	if (remainder) /* add in "octaves" remainder */
-				   /* "i" and spatial freq. are preset in loop above */
-		value += remainder * perlinNoise.noise(point.x, point.y, 0.8) * exponent_array[i];
-	return(value);
-} /* fBm() */
+	} 
 
-/* Hybrid additive/multiplicative multifractal terrain model.
-*
-* Some good parameter values to start with:
-* H: 0.25
-* offset: 0.7
-*/
-double HeightMap::HybridMultifractal(glm::vec2 point, double H, double lacunarity,
-	double octaves, double offset)
+	remainder = octaves - (int)octaves;
+
+	if (remainder)
+	{
+		value += remainder * perlinNoise.noise(point.x, point.y, 0.8) * exponent_array[i];
+	}
+
+	return(value);
+}
+
+double HeightMap::HybridMultifractal(glm::vec2 point, double H, double lacunarity, double octaves, double offset)
 {
 	double frequency, result, signal, weight, remainder;
 	double Noise3();
 	int i;
 	bool first = true;
 	static double *exponent_array;
-	/* precompute and store spectral weights */
-	if (first) {
-		/* seize required memory for exponent_array */
-		exponent_array =
-			(double *)malloc(octaves * sizeof(double));
+	
+	if (first) 
+	{		
+		exponent_array = (double *)malloc(octaves * sizeof(double));
 		frequency = 1.0;
-		for (i = 0; i<octaves; i++) {
-			/* compute weight for each frequency */
+
+		for (i = 0; i<octaves; i++) 
+		{
+			
 			exponent_array[i] = pow(frequency, -H);
 			frequency *= lacunarity;
 		}
+
 		first = false;
 	}
-	/* get first octave of function */
+	
 	result = (perlinNoise.noise(point.x, point.y, 0.8) + offset) * exponent_array[0];
+
 	weight = result;
-	/* increase frequency */
+	
 	point.x *= lacunarity;
 	point.y *= lacunarity;
-	/* spectral construction inner loop, where the fractal is built */
-	for (i = 1; i<octaves; i++) {
-		/* prevent divergence */
+	
+	for (i = 1; i<octaves; i++) 
+	{		
 		if (weight > 1.0) weight = 1.0;
-		/* get next higher frequency */
+		
 		signal = (perlinNoise.noise(point.x, point.y, 0.8) + offset) * exponent_array[i];
-		/* add it in, weighted by previous freq's local value */
+		
 		result += weight * signal;
-		/* update the (monotonically decreasing) weighting value */
-		/* (this is why H must specify a high fractal dimension) */
+		
 		weight *= signal;
-		/* increase frequency */
+		
 		point.x *= lacunarity;
 		point.y *= lacunarity;
-	} /* for */
-	  /* take care of remainder in “octaves” */
+	} 
+	  
 	remainder = octaves - (int)octaves;
 	if (remainder)
-		/* “i” and spatial freq. are preset in loop above */
+	{
 		result += remainder * perlinNoise.noise(point.x, point.y, 0.8) * exponent_array[i];
+	}
+
 	return(result);
-} /* HybridMultifractal() */
+} 
 
 /*
 *	Returns a random float between [-range, +range]

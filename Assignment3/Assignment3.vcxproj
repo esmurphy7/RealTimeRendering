@@ -83,7 +83,6 @@
     <ClCompile Include="opengl.cpp" />
     <ClCompile Include="PerlinNoise.cpp" />
     <ClCompile Include="shaderset.cpp" />
-    <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +95,6 @@
     <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="PPM_File.h" />
     <ClInclude Include="shaderset.h" />
-    <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="TerrainMesh.h" />

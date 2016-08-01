@@ -1,6 +1,5 @@
 #include <vector>
 #include "PerlinNoise.h"
-#include "SimplexNoise.h"
 #include "PPM_File.h"
 #include "HeightMap.h"
 

@@ -6,7 +6,6 @@
     <ClCompile Include="shaderset.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
     <ClCompile Include="PerlinNoise.cpp" />
-    <ClCompile Include="SimplexNoise.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengl.h" />
@@ -18,10 +17,10 @@
     <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="PPM_File.h" />
     <ClInclude Include="HeightMap.h" />
-    <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="CubicBezierCurve.h" />
+    <ClInclude Include="BezierPath.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
