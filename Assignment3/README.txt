@@ -22,3 +22,9 @@ Animation
 - Implement bezier curve construction (advanced)
 - Animate camera path along a bezier curve (advanced)
 - Concatenate multiple bezier curves to form a bezier path (advanced)
+
+Branch Descriptions =====================================
+master: Hybridmultifractal generation with bezier curve camera path
+demo-fbm: fractal brownian motion generation
+demo-diamond-square: terrain generation with diamond-square algorithm
+demo-texture-blending: terrain is a linear, angular plane to demonstrate texture blending based on height
